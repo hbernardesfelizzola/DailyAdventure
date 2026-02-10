@@ -8,12 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    private var dailyAdventure: String = "What would you like to do today?"
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        VStack{
+            Text("What's your daily adventure?")
+                .font(.headline)
+                .padding()
+            TextField("Daily Adventure", text: .constant(dailyAdventure))
         }
         .padding()
     }
