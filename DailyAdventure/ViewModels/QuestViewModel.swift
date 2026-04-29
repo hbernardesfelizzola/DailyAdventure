@@ -118,4 +118,16 @@ class QuestViewModel {
     func isMainQuestCompleted() -> Bool {
         todayAdventure.completedQuests.contains { $0.isMainQuest }
     }
+    
+    func updateFeedback(_ feedback: DayFeedback, for adventure: DailyAdventure) {
+        if adventure.isToday {
+            todayAdventure.feedback = feedback
+            save()
+        } else {
+            if let index = history.firstIndex(where: { $0.id == adventure.id }) {
+                history[index].feedback = feedback
+                storage.saveHistory(history)
+            }
+        }
+    }
 }

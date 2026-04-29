@@ -7,6 +7,12 @@
 
 import Foundation
 
+enum DayFeedback: String, Codable {
+    case positive = "positive"
+    case negative = "negative"
+    case none = "none"
+}
+
 struct DailyAdventure: Identifiable, Codable {
     let id: UUID
     var date: Date
@@ -14,21 +20,30 @@ struct DailyAdventure: Identifiable, Codable {
     var sideQuests: [Quest]
     var completedQuests: [Quest]
     var drawingType: DrawingType
+    var feedback: DayFeedback
     
-    init(id: UUID = UUID(), date: Date = Date(), mainQuest: String = "", sideQuests: [Quest] = [], completedQuests: [Quest] = [], drawingType: DrawingType = .random()) {
+    init(
+        id: UUID = UUID(),
+        date: Date = Date(),
+        mainQuest: String = "",
+        sideQuests: [Quest] = [],
+        completedQuests: [Quest] = [],
+        drawingType: DrawingType = .random(),
+        feedback: DayFeedback = .none
+    ) {
         self.id = id
         self.date = date
         self.mainQuest = mainQuest
         self.sideQuests = sideQuests
         self.completedQuests = completedQuests
         self.drawingType = drawingType
+        self.feedback = feedback
     }
     
     var isToday: Bool {
         Calendar.current.isDateInToday(date)
     }
     
-    // Total de quests = 4 (base) + quests extras adicionadas
     var totalQuests: Int {
         let mainCount = mainQuest.isEmpty ? 0 : 1
         return mainCount + sideQuests.count
@@ -41,5 +56,9 @@ struct DailyAdventure: Identifiable, Codable {
     
     var isFullyCompleted: Bool {
         completionPercentage == 1.0 && !mainQuest.isEmpty
+    }
+    
+    var hasAnyQuest: Bool {
+        !mainQuest.isEmpty || !sideQuests.isEmpty
     }
 }
