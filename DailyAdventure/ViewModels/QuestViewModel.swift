@@ -60,13 +60,6 @@ class QuestViewModel {
         }
     }
     
-    func updateSideQuest(_ quest: Quest, newTitle: String) {
-        if let index = todayAdventure.sideQuests.firstIndex(where: { $0.id == quest.id }) {
-            todayAdventure.sideQuests[index].title = newTitle
-            save()
-        }
-    }
-    
     func deleteSideQuest(_ quest: Quest) {
         todayAdventure.sideQuests.removeAll { $0.id == quest.id }
         todayAdventure.completedQuests.removeAll { $0.id == quest.id }

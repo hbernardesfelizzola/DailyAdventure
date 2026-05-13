@@ -7,7 +7,6 @@
 
 
 import UserNotifications
-import SwiftUI
 
 class NotificationService {
     static let shared = NotificationService()
@@ -81,10 +80,5 @@ class NotificationService {
     func cancelNotification(id: String) {
         UNUserNotificationCenter.current()
             .removePendingNotificationRequests(withIdentifiers: [id])
-    }
-    
-    // MARK: - Cancelar todas
-    func cancelAllNotifications() {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
 }

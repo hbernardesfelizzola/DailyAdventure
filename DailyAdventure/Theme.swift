@@ -11,7 +11,6 @@ import SwiftUI
 enum Theme {
     // MARK: - Colors
     static let backgroundVanilla = Color(hex: "FCF6B1")
-    static let backgroundBlue = Color(hex: "011936")
     static let workBlue = Color(hex: "6874E8")
     static let healthRose = Color(hex: "DA627D")
     static let relationshipCeladon = Color(hex: "A9E5BB")
@@ -81,12 +80,6 @@ enum Theme {
         isHighContrast ? Color(hex: "C0392B") : healthRose
     }
     
-    enum Category {
-        static var work: Color { Theme.workColor }
-        static var health: Color { Theme.healthColor }
-        static var relationship: Color { Theme.relationshipColor }
-    }
-    
     enum Icons {
         static let mainQuest = "star.fill"
         static let sideQuest = "diamond.fill"
@@ -101,14 +94,6 @@ enum Theme {
     
     static let cornerRadius: CGFloat = 20
     static let cornerRadiusSmall: CGFloat = 12
-    
-    static func categoryColor(for category: QuestCategory) -> Color {
-        switch category {
-        case .work: return workColor
-        case .health: return healthColor
-        case .relationship: return relationshipColor
-        }
-    }
 }
 
 // MARK: - Color Extension para Hex

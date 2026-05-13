@@ -2,22 +2,14 @@
 //  DrawingType.swift
 //  DailyAdventure
 //
-//  Created by Henrique Bernardes on 19/04/26.
+//  Created by Henrique Bernardes on 26/03/26.
 //
 
+import Foundation
 
-import SwiftUI
-
-enum DrawingType: String, Codable, CaseIterable {
+enum DrawingType: String, Codable {
     case castle = "Castle"
-    
-    var description: String {
-        switch self {
-        case .castle:
-            return "🏰 Castle"
-        }
-    }
-    
+
     static func random() -> DrawingType {
         .castle
     }

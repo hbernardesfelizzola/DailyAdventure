@@ -1,5 +1,5 @@
 //
-//  UserProgress.swift
+//  DailyAdventure.swift
 //  DailyAdventure
 //
 //  Created by Henrique Bernardes on 19/04/26.
@@ -52,10 +52,6 @@ struct DailyAdventure: Identifiable, Codable {
     var completionPercentage: Double {
         guard totalQuests > 0 else { return 0 }
         return Double(completedQuests.count) / Double(totalQuests)
-    }
-    
-    var isFullyCompleted: Bool {
-        completionPercentage == 1.0 && !mainQuest.isEmpty
     }
     
     var hasAnyQuest: Bool {
