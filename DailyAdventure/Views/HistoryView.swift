@@ -13,10 +13,14 @@ struct HistoryView: View {
     @State private var selectedAdventure: DailyAdventure? = nil
     
     var allDays: [DailyAdventure] {
-        var days = viewModel.history
-        if !viewModel.todayAdventure.mainQuest.isEmpty ||
-           !viewModel.todayAdventure.sideQuests.isEmpty {
-            days.insert(viewModel.todayAdventure, at: 0)
+        let cal = Calendar.current
+        let today = viewModel.todayAdventure
+        var days = viewModel.history.filter { entry in
+            !cal.isDate(entry.date, inSameDayAs: today.date)
+        }
+        if !today.mainQuest.isEmpty ||
+           !today.sideQuests.isEmpty {
+            days.insert(today, at: 0)
         }
         return days
     }
