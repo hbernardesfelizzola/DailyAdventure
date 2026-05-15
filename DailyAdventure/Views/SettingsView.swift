@@ -13,6 +13,63 @@ struct SettingsView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage("morningReminderEnabled") private var morningReminderEnabled = false
     @AppStorage("eveningReminderEnabled") private var eveningReminderEnabled = false
+    @AppStorage("morningReminderHour") private var morningHour = 8
+    @AppStorage("morningReminderMinute") private var morningMinute = 0
+    @AppStorage("eveningReminderHour") private var eveningHour = 21
+    @AppStorage("eveningReminderMinute") private var eveningMinute = 0
+    
+    private var morningTimeBinding: Binding<Date> {
+        Binding(
+            get: { SettingsView.todayDate(hour: morningHour, minute: morningMinute) },
+            set: { newDate in
+                let parts = Calendar.current.dateComponents([.hour, .minute], from: newDate)
+                morningHour = parts.hour ?? 8
+                morningMinute = parts.minute ?? 0
+                if morningReminderEnabled {
+                    NotificationService.shared.scheduleMorningReminder(hour: morningHour, minute: morningMinute)
+                }
+            }
+        )
+    }
+
+    private var eveningTimeBinding: Binding<Date> {
+        Binding(
+            get: { SettingsView.todayDate(hour: eveningHour, minute: eveningMinute) },
+            set: { newDate in
+                let parts = Calendar.current.dateComponents([.hour, .minute], from: newDate)
+                eveningHour = parts.hour ?? 21
+                eveningMinute = parts.minute ?? 0
+                if eveningReminderEnabled {
+                    NotificationService.shared.scheduleEveningReminder(hour: eveningHour, minute: eveningMinute)
+                }
+            }
+        )
+    }
+
+    private var morningSubtitle: String {
+        let timeLabel = formattedShortTime(hour: morningHour, minute: morningMinute)
+        let format = String(localized: "settings.notifications.morning.subtitle_format")
+        return String(format: format, timeLabel)
+    }
+
+    private var eveningSubtitle: String {
+        let timeLabel = formattedShortTime(hour: eveningHour, minute: eveningMinute)
+        let format = String(localized: "settings.notifications.evening.subtitle_format")
+        return String(format: format, timeLabel)
+    }
+
+    /// Reference date matching hour/minute for pickers (`DatePicker` bindings).
+    private static func todayDate(hour: Int, minute: Int) -> Date {
+        var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        components.hour = hour
+        components.minute = minute
+        return Calendar.current.date(from: components) ?? Date()
+    }
+
+    private func formattedShortTime(hour: Int, minute: Int) -> String {
+        let date = Self.todayDate(hour: hour, minute: minute)
+        return DateFormatter.localizedString(from: date, dateStyle: .none, timeStyle: .short)
+    }
     
     var body: some View {
         ZStack {
@@ -66,15 +123,15 @@ struct SettingsView: View {
                     
                     // MARK: - Notifications
                     VStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                        Label("Notifications", systemImage: "bell.fill")
+                        Label(String(localized: "settings.notifications.header"), systemImage: "bell.fill")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(Theme.titleDenim)
                         
                         SettingsToggleRow(
                             icon: "sunrise.fill",
                             color: Theme.workBlue,
-                            title: "Morning Reminder",
-                            subtitle: "Daily reminder at 8:00 AM to set your quests",
+                            title: String(localized: "settings.notifications.morning.title"),
+                            subtitle: morningSubtitle,
                             isOn: $morningReminderEnabled
                         )
                         .onChange(of: morningReminderEnabled) { _, newValue in
@@ -82,21 +139,28 @@ struct SettingsView: View {
                                 Task {
                                     let granted = await NotificationService.shared.requestPermission()
                                     if granted {
-                                        NotificationService.shared.scheduleMorningReminder()
+                                        NotificationService.shared.scheduleMorningReminder(hour: morningHour, minute: morningMinute)
                                     } else {
                                         morningReminderEnabled = false
                                     }
                                 }
                             } else {
-                                NotificationService.shared.cancelNotification(id: "morning_reminder")
+                                NotificationService.shared.cancelNotification(id: NotificationService.morningIdentifier)
                             }
+                        }
+                        
+                        if morningReminderEnabled {
+                            reminderTimePickerRow(
+                                title: String(localized: "settings.notifications.morning_time"),
+                                binding: morningTimeBinding
+                            )
                         }
                         
                         SettingsToggleRow(
                             icon: "moon.stars.fill",
                             color: Theme.titleDenim,
-                            title: "Evening Reminder",
-                            subtitle: "Daily reminder at 9:00 PM to review your day",
+                            title: String(localized: "settings.notifications.evening.title"),
+                            subtitle: eveningSubtitle,
                             isOn: $eveningReminderEnabled
                         )
                         .onChange(of: eveningReminderEnabled) { _, newValue in
@@ -104,14 +168,21 @@ struct SettingsView: View {
                                 Task {
                                     let granted = await NotificationService.shared.requestPermission()
                                     if granted {
-                                        NotificationService.shared.scheduleEveningReminder()
+                                        NotificationService.shared.scheduleEveningReminder(hour: eveningHour, minute: eveningMinute)
                                     } else {
                                         eveningReminderEnabled = false
                                     }
                                 }
                             } else {
-                                NotificationService.shared.cancelNotification(id: "evening_reminder")
+                                NotificationService.shared.cancelNotification(id: NotificationService.eveningIdentifier)
                             }
+                        }
+                        
+                        if eveningReminderEnabled {
+                            reminderTimePickerRow(
+                                title: String(localized: "settings.notifications.evening_time"),
+                                binding: eveningTimeBinding
+                            )
                         }
                     }
                     .padding(Theme.Spacing.medium)
@@ -212,6 +283,24 @@ struct SettingsView: View {
             .scrollEdgeEffectIfAvailable()
         }
         .preferredColorScheme(isDarkMode ? .dark : .light)
+    }
+
+    private func reminderTimePickerRow(title: String, binding: Binding<Date>) -> some View {
+        HStack(spacing: Theme.Spacing.medium) {
+            Text(title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(Theme.titleDenim)
+
+            Spacer(minLength: 8)
+
+            DatePicker("", selection: binding, displayedComponents: .hourAndMinute)
+                .labelsHidden()
+                .tint(Theme.titleDenim)
+        }
+        .padding(Theme.Spacing.small)
+        .background(Theme.titleDenim.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
+        .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
     }
 }
 

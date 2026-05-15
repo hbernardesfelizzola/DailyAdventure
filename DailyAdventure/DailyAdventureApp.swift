@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct DailyAdventureApp: App {
     @State private var viewModel = QuestViewModel()
+    @State private var notificationRouter = NotificationTapRouter()
     @State private var isLoading = true
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage("isDarkMode") private var isDarkMode = false
@@ -25,7 +26,7 @@ struct DailyAdventureApp: App {
                     OnboardingView()
                         .transition(.opacity)
                 } else {
-                    MainTabView(viewModel: viewModel)
+                    MainTabView(viewModel: viewModel, notificationRouter: notificationRouter)
                         .transition(.opacity)
                 }
             }
@@ -35,6 +36,7 @@ struct DailyAdventureApp: App {
             .onChange(of: scenePhase) { oldPhase, newPhase in
                 if newPhase == .active {
                     viewModel.checkAndResetIfNeeded()
+                    NotificationService.shared.syncScheduledNotificationsWithSettings()
                 }
             }
             .onAppear {
