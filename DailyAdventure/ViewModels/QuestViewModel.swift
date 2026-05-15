@@ -14,32 +14,49 @@ class QuestViewModel {
     var todayAdventure: DailyAdventure
     var history: [DailyAdventure] = []
     private let storage = StorageService.shared
+    private let dayBoundary = AdventureDayBoundary(calendar: .current)
     
     init() {
         self.history = storage.loadHistory()
-        
-        let loaded = storage.loadTodayAdventure()
-        
-        if let saved = loaded, saved.isToday {
-            self.todayAdventure = saved
-        } else {
+
+        let now = Date()
+
+        guard let loaded = storage.loadTodayAdventure() else {
             self.todayAdventure = DailyAdventure()
-            
-            if let saved = loaded {
-                self.history.insert(saved, at: 0)
-                storage.saveHistory(self.history)
-            }
+            return
         }
+
+        if dayBoundary.isSameCalendarDayAsToday(loaded.date, referenceNow: now) {
+            self.todayAdventure = loaded
+            return
+        }
+
+        self.todayAdventure = DailyAdventure()
+
+        if loaded.shouldArchiveToAdventureLog {
+            history = dayBoundary.historyReplacingCalendarDay(existingHistory: history, archivedDay: loaded)
+            storage.saveHistory(history)
+        }
+
+        storage.saveTodayAdventure(todayAdventure)
     }
     
     // MARK: - Reset
     func checkAndResetIfNeeded() {
-        if !todayAdventure.isToday {
-            history.insert(todayAdventure, at: 0)
-            storage.saveHistory(history)
-            todayAdventure = DailyAdventure()
-            storage.saveTodayAdventure(todayAdventure)
+        let now = Date()
+        guard !dayBoundary.isSameCalendarDayAsToday(todayAdventure.date, referenceNow: now) else {
+            return
         }
+
+        let previous = todayAdventure
+
+        if previous.shouldArchiveToAdventureLog {
+            history = dayBoundary.historyReplacingCalendarDay(existingHistory: history, archivedDay: previous)
+            storage.saveHistory(history)
+        }
+
+        todayAdventure = DailyAdventure()
+        storage.saveTodayAdventure(todayAdventure)
     }
     
     private func save() {
