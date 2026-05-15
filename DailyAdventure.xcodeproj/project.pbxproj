@@ -6,8 +6,27 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		DA50EE012F398DD600FD4636 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2DEFC8582F398DD400FD4634 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2DEFC85F2F398DD500FD4634;
+			remoteInfo = DailyAdventure;
+		};
+		DA50EE022F398DD600FD4636 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2DEFC8582F398DD400FD4634 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2DEFC85F2F398DD500FD4634;
+			remoteInfo = DailyAdventure;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		2DEFC8602F398DD500FD4634 /* DailyAdventure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DailyAdventure.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA10EE012F398DD600FD4636 /* DailyAdventureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DailyAdventureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA10EE022F398DD600FD4636 /* DailyAdventureUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DailyAdventureUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +35,34 @@
 			path = DailyAdventure;
 			sourceTree = "<group>";
 		};
+		DA20EE012F398DD600FD4636 /* DailyAdventureTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = DailyAdventureTests;
+			sourceTree = "<group>";
+		};
+		DA20EE022F398DD600FD4636 /* DailyAdventureUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = DailyAdventureUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		2DEFC85D2F398DD500FD4634 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA40EE032F398DD600FD4636 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA40EE042F398DD600FD4636 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +76,8 @@
 			isa = PBXGroup;
 			children = (
 				2DEFC8622F398DD500FD4634 /* DailyAdventure */,
+				DA20EE012F398DD600FD4636 /* DailyAdventureTests */,
+				DA20EE022F398DD600FD4636 /* DailyAdventureUITests */,
 				2DEFC8612F398DD500FD4634 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +86,8 @@
 			isa = PBXGroup;
 			children = (
 				2DEFC8602F398DD500FD4634 /* DailyAdventure.app */,
+				DA10EE012F398DD600FD4636 /* DailyAdventureTests.xctest */,
+				DA10EE022F398DD600FD4636 /* DailyAdventureUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +117,52 @@
 			productReference = 2DEFC8602F398DD500FD4634 /* DailyAdventure.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DA30EE012F398DD600FD4636 /* DailyAdventureTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA70EE012F398DD600FD4636 /* Build configuration list for PBXNativeTarget "DailyAdventureTests" */;
+			buildPhases = (
+				DA40EE012F398DD600FD4636 /* Sources */,
+				DA40EE032F398DD600FD4636 /* Frameworks */,
+				DA40EE052F398DD600FD4636 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DA60EE012F398DD600FD4636 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DA20EE012F398DD600FD4636 /* DailyAdventureTests */,
+			);
+			name = DailyAdventureTests;
+			packageProductDependencies = (
+			);
+			productName = DailyAdventureTests;
+			productReference = DA10EE012F398DD600FD4636 /* DailyAdventureTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		DA30EE022F398DD600FD4636 /* DailyAdventureUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA70EE022F398DD600FD4636 /* Build configuration list for PBXNativeTarget "DailyAdventureUITests" */;
+			buildPhases = (
+				DA40EE022F398DD600FD4636 /* Sources */,
+				DA40EE042F398DD600FD4636 /* Frameworks */,
+				DA40EE062F398DD600FD4636 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DA60EE022F398DD600FD4636 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DA20EE022F398DD600FD4636 /* DailyAdventureUITests */,
+			);
+			name = DailyAdventureUITests;
+			packageProductDependencies = (
+			);
+			productName = DailyAdventureUITests;
+			productReference = DA10EE022F398DD600FD4636 /* DailyAdventureUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +175,15 @@
 				TargetAttributes = {
 					2DEFC85F2F398DD500FD4634 = {
 						CreatedOnToolsVersion = 26.2;
+						TestTargetID = DA30EE022F398DD600FD4636;
+					};
+					DA30EE012F398DD600FD4636 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 2DEFC85F2F398DD500FD4634;
+					};
+					DA30EE022F398DD600FD4636 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 2DEFC85F2F398DD500FD4634;
 					};
 				};
 			};
@@ -101,12 +203,28 @@
 			projectRoot = "";
 			targets = (
 				2DEFC85F2F398DD500FD4634 /* DailyAdventure */,
+				DA30EE012F398DD600FD4636 /* DailyAdventureTests */,
+				DA30EE022F398DD600FD4636 /* DailyAdventureUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		2DEFC85E2F398DD500FD4634 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA40EE052F398DD600FD4636 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA40EE062F398DD600FD4636 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -123,7 +241,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DA40EE012F398DD600FD4636 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA40EE022F398DD600FD4636 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DA60EE012F398DD600FD4636 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2DEFC85F2F398DD500FD4634 /* DailyAdventure */;
+			targetProxy = DA50EE012F398DD600FD4636 /* PBXContainerItemProxy */;
+		};
+		DA60EE022F398DD600FD4636 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2DEFC85F2F398DD500FD4634 /* DailyAdventure */;
+			targetProxy = DA50EE022F398DD600FD4636 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		2DEFC8692F398DD600FD4634 /* Debug */ = {
@@ -311,6 +456,106 @@
 			};
 			name = Release;
 		};
+		DA71EE012F398DD600FD4636 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T37N8ASHM2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.poatek.DailyAdventureTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DailyAdventure.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DailyAdventure";
+			};
+			name = Debug;
+		};
+		DA71EE022F398DD600FD4636 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T37N8ASHM2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.poatek.DailyAdventureTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DailyAdventure.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DailyAdventure";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		DA72EE012F398DD600FD4636 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T37N8ASHM2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.poatek.DailyAdventureUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DailyAdventure;
+			};
+			name = Debug;
+		};
+		DA72EE022F398DD600FD4636 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T37N8ASHM2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.poatek.DailyAdventureUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DailyAdventure;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -328,6 +573,24 @@
 			buildConfigurations = (
 				2DEFC86C2F398DD600FD4634 /* Debug */,
 				2DEFC86D2F398DD600FD4634 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DA70EE012F398DD600FD4636 /* Build configuration list for PBXNativeTarget "DailyAdventureTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA71EE012F398DD600FD4636 /* Debug */,
+				DA71EE022F398DD600FD4636 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DA70EE022F398DD600FD4636 /* Build configuration list for PBXNativeTarget "DailyAdventureUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA72EE012F398DD600FD4636 /* Debug */,
+				DA72EE022F398DD600FD4636 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

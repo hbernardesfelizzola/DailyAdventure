@@ -9,9 +9,17 @@ import SwiftUI
 
 @main
 struct DailyAdventureApp: App {
+    private static let isUITesting = ProcessInfo.processInfo.arguments.contains("--ui-testing")
+
+    init() {
+        if Self.isUITesting {
+            UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+        }
+    }
+
     @State private var viewModel = QuestViewModel()
     @State private var notificationRouter = NotificationTapRouter()
-    @State private var isLoading = true
+    @State private var isLoading = !DailyAdventureApp.isUITesting
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage("isDarkMode") private var isDarkMode = false
     @Environment(\.scenePhase) private var scenePhase
@@ -40,6 +48,7 @@ struct DailyAdventureApp: App {
                 }
             }
             .onAppear {
+                guard !DailyAdventureApp.isUITesting else { return }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                     withAnimation {
                         isLoading = false
