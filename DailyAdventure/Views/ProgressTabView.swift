@@ -75,7 +75,6 @@ struct ProgressTabView: View {
                     
                     // MARK: - Progress Section
                     DrawingProgressView(
-                        drawingType: viewModel.todayAdventure.drawingType,
                         progress: viewModel.todayAdventure.completionPercentage,
                         completedQuests: viewModel.todayAdventure.completedQuests,
                         totalQuests: viewModel.todayAdventure.totalQuests,

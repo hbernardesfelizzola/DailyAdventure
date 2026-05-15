@@ -34,11 +34,18 @@ struct OnboardingView: View {
         ),
         OnboardingPage(
             emoji: "🏰",
-            title: "Track your Progress",
+            title: "Check your Progress",
             description: "Watch your adventure unfold as you complete quests. Check your progress and celebrate your victories!",
             color: Theme.healthRose
+        ),
+        OnboardingPage(
+            emoji: "📖",
+            title: "Adventure Log",
+            description: "Look back at your past adventures, review your days and give feedback on how each one went. Your journey tells a story!",
+            color: Theme.titleDenim
         )
     ]
+
     
     var body: some View {
         ZStack {

@@ -60,13 +60,6 @@ class QuestViewModel {
         }
     }
     
-    func updateSideQuest(_ quest: Quest, newTitle: String) {
-        if let index = todayAdventure.sideQuests.firstIndex(where: { $0.id == quest.id }) {
-            todayAdventure.sideQuests[index].title = newTitle
-            save()
-        }
-    }
-    
     func deleteSideQuest(_ quest: Quest) {
         todayAdventure.sideQuests.removeAll { $0.id == quest.id }
         todayAdventure.completedQuests.removeAll { $0.id == quest.id }
@@ -117,5 +110,17 @@ class QuestViewModel {
     
     func isMainQuestCompleted() -> Bool {
         todayAdventure.completedQuests.contains { $0.isMainQuest }
+    }
+    
+    func updateFeedback(_ feedback: DayFeedback, for adventure: DailyAdventure) {
+        if adventure.isToday {
+            todayAdventure.feedback = feedback
+            save()
+        } else {
+            if let index = history.firstIndex(where: { $0.id == adventure.id }) {
+                history[index].feedback = feedback
+                storage.saveHistory(history)
+            }
+        }
     }
 }

@@ -5,13 +5,14 @@
 //  Created by Henrique Bernardes on 19/04/26.
 //
 
-
 import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("isDarkMode") private var isDarkMode = false
     @AppStorage("isHighContrast") private var isHighContrast = false
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+    @AppStorage("morningReminderEnabled") private var morningReminderEnabled = false
+    @AppStorage("eveningReminderEnabled") private var eveningReminderEnabled = false
     
     var body: some View {
         ZStack {
@@ -57,6 +58,61 @@ struct SettingsView: View {
                             subtitle: "Increase color contrast for better readability",
                             isOn: $isHighContrast
                         )
+                    }
+                    .padding(Theme.Spacing.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+                    .glassEffectIfAvailable()
+                    .padding(.horizontal, Theme.Spacing.medium)
+                    
+                    // MARK: - Notifications
+                    VStack(alignment: .leading, spacing: Theme.Spacing.small) {
+                        Label("Notifications", systemImage: "bell.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(Theme.titleDenim)
+                        
+                        SettingsToggleRow(
+                            icon: "sunrise.fill",
+                            color: Theme.workBlue,
+                            title: "Morning Reminder",
+                            subtitle: "Daily reminder at 8:00 AM to set your quests",
+                            isOn: $morningReminderEnabled
+                        )
+                        .onChange(of: morningReminderEnabled) { _, newValue in
+                            if newValue {
+                                Task {
+                                    let granted = await NotificationService.shared.requestPermission()
+                                    if granted {
+                                        NotificationService.shared.scheduleMorningReminder()
+                                    } else {
+                                        morningReminderEnabled = false
+                                    }
+                                }
+                            } else {
+                                NotificationService.shared.cancelNotification(id: "morning_reminder")
+                            }
+                        }
+                        
+                        SettingsToggleRow(
+                            icon: "moon.stars.fill",
+                            color: Theme.titleDenim,
+                            title: "Evening Reminder",
+                            subtitle: "Daily reminder at 9:00 PM to review your day",
+                            isOn: $eveningReminderEnabled
+                        )
+                        .onChange(of: eveningReminderEnabled) { _, newValue in
+                            if newValue {
+                                Task {
+                                    let granted = await NotificationService.shared.requestPermission()
+                                    if granted {
+                                        NotificationService.shared.scheduleEveningReminder()
+                                    } else {
+                                        eveningReminderEnabled = false
+                                    }
+                                }
+                            } else {
+                                NotificationService.shared.cancelNotification(id: "evening_reminder")
+                            }
+                        }
                     }
                     .padding(Theme.Spacing.medium)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))

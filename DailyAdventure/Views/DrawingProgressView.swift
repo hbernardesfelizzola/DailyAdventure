@@ -10,7 +10,6 @@ import SwiftUI
 import Charts
 
 struct DrawingProgressView: View {
-    let drawingType: DrawingType
     let progress: Double
     let completedQuests: [Quest]
     let totalQuests: Int
@@ -308,7 +307,6 @@ struct ChartDataPoint: Identifiable {
 #Preview {
     VStack(spacing: 20) {
         DrawingProgressView(
-            drawingType: .castle,
             progress: 0.5,
             completedQuests: [
                 Quest(title: "Complete project", category: nil, isMainQuest: true),
