@@ -13,12 +13,11 @@ struct ContentView: View {
     @State private var isAnimating: Bool = false
     @State private var showVictory = false
     @State private var showMainFloatingText = false
-    /// false = mostra o card (default); true = mostra o TextField para edição.
-    /// Reseta para false ao navegar: se há quest salva, o card aparece automaticamente.
-    @State private var isEditingMainQuest: Bool = false
+    /// Rascunho local — só vai pro ViewModel quando o usuário pressionar done.
+    @State private var mainQuestDraft: String = ""
 
     private var showMainQuestCard: Bool {
-        !viewModel.todayAdventure.mainQuest.isEmpty && !isEditingMainQuest
+        !viewModel.todayAdventure.mainQuest.isEmpty
     }
     
     var body: some View {
@@ -72,33 +71,31 @@ struct ContentView: View {
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(Theme.titleDenim)
                             
-                            // TextField: visível enquanto não há card (sem quest ou editando)
+                            // TextField: visível enquanto não há quest salva no ViewModel
                             if !showMainQuestCard {
                                 ZStack(alignment: .leading) {
-                                    if viewModel.todayAdventure.mainQuest.isEmpty {
+                                    if mainQuestDraft.isEmpty {
                                         Text("What is your main quest today?")
                                             .font(.system(size: 16, weight: .regular))
                                             .foregroundColor(Theme.titleDenim.opacity(0.6))
                                             .padding(.leading, Theme.Spacing.extraSmall)
                                     }
 
-                                    TextField("", text: .init(
-                                        get: { viewModel.todayAdventure.mainQuest },
-                                        set: { viewModel.updateMainQuest($0) }
-                                    ))
-                                    .font(.system(size: 16, weight: .medium))
-                                    .textFieldStyle(.plain)
-                                    .padding(Theme.Spacing.small)
-                                    .foregroundColor(Theme.titleDenim)
-                                    .submitLabel(.done)
-                                    .onSubmit {
-                                        if !viewModel.todayAdventure.mainQuest.isEmpty {
-                                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                                isEditingMainQuest = false
+                                    TextField("", text: $mainQuestDraft)
+                                        .font(.system(size: 16, weight: .medium))
+                                        .textFieldStyle(.plain)
+                                        .padding(Theme.Spacing.small)
+                                        .foregroundColor(Theme.titleDenim)
+                                        .submitLabel(.done)
+                                        .onSubmit {
+                                            let trimmed = mainQuestDraft.trimmingCharacters(in: .whitespaces)
+                                            if !trimmed.isEmpty {
+                                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                                    viewModel.updateMainQuest(trimmed)
+                                                }
                                             }
+                                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                                         }
-                                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                                    }
                                 }
                                 .transition(.opacity.combined(with: .move(edge: .top)))
                             }
@@ -138,7 +135,7 @@ struct ContentView: View {
                                             }
                                             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                                 viewModel.updateMainQuest("")
-                                                isEditingMainQuest = false
+                                                mainQuestDraft = ""
                                             }
                                         }) {
                                             Image(systemName: "xmark.circle.fill")
