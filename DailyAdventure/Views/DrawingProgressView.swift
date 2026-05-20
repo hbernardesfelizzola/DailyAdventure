@@ -103,9 +103,9 @@ struct DrawingProgressView: View {
     }
     
     var body: some View {
-        VStack(spacing: Theme.Spacing.medium) {
+        VStack(spacing: Theme.Spacing.small) {
             // MARK: - Gráfico e Progress lado a lado
-            HStack(spacing: Theme.Spacing.large) {
+            HStack(spacing: Theme.Spacing.medium) {
                 // Gráfico circular
                 ZStack {
                     Chart {
@@ -152,27 +152,23 @@ struct DrawingProgressView: View {
                     .animation(.spring(response: 0.5, dampingFraction: 0.7), value: workWeight)
                     .animation(.spring(response: 0.5, dampingFraction: 0.7), value: healthWeight)
                     .animation(.spring(response: 0.5, dampingFraction: 0.7), value: relationshipWeight)
-                    .frame(maxWidth: 150)
-                    .frame(height: 150)
-                    
+                    .frame(maxWidth: 110)
+                    .frame(height: 110)
+
                     // Centro do gráfico
-                    VStack(spacing: 4) {
+                    VStack(spacing: 2) {
                         Text("\(Int(animatedProgress * 100))%")
-                            .font(.system(size: 24, weight: .bold))
+                            .font(.system(size: 18, weight: .bold))
                             .foregroundColor(Theme.titleDenim)
-                        
-                        Text(completedQuests.isEmpty ? "Start!" : "Complete")
-                            .font(.system(size: 12, weight: .regular))
+
+                        Text(completedQuests.isEmpty ? "Start!" : "Done")
+                            .font(.system(size: 10, weight: .regular))
                             .foregroundColor(Theme.titleDenim.opacity(0.7))
                     }
                 }
                 
                 // Progress by Category
-                VStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                    Text("Category Progress")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.titleDenim)
-                    
+                VStack(alignment: .leading, spacing: 6) {
                     CategoryBadge(
                         icon: "star.fill",
                         category: "Main",
@@ -201,10 +197,9 @@ struct DrawingProgressView: View {
                         color: QuestCategory.relationship.color
                     )
                     
-                    Spacer()
                 }
             }
-            .padding(.horizontal, Theme.Spacing.medium)
+            .padding(.horizontal, Theme.Spacing.small)
             
             // MARK: - Barra de progresso colorida
             VStack(spacing: Theme.Spacing.small) {
@@ -239,9 +234,9 @@ struct DrawingProgressView: View {
                 }
                 .frame(height: 8)
             }
-            .padding(.horizontal, Theme.Spacing.medium)
+            .padding(.horizontal, Theme.Spacing.small)
         }
-        .padding(Theme.Spacing.medium)
+        .padding(Theme.Spacing.small)
         .onAppear {
             animateProgress()
         }
@@ -266,31 +261,30 @@ struct CategoryBadge: View {
     let color: Color
     
     var body: some View {
-        HStack(spacing: Theme.Spacing.small) {
+        HStack(spacing: 6) {
             ZStack {
                 Circle()
-                    .fill(color.opacity(0.3))
-                    .frame(width: 28, height: 28)
-                
+                    .fill(color.opacity(0.25))
+                    .frame(width: 22, height: 22)
+
                 Image(systemName: icon)
                     .foregroundColor(color)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 10, weight: .semibold))
             }
             .glassEffectCircleIfAvailable()
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(category)
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(Theme.titleDenim)
-                
-                Text(progress)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(color)
-            }
-            
+
+            Text(category)
+                .font(.system(size: 11, weight: .regular))
+                .foregroundColor(Theme.titleDenim)
+
             Spacer()
+
+            Text(progress)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(color)
         }
-        .padding(Theme.Spacing.small)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
         .background(color.opacity(0.1))
         .clipShape(Capsule())
         .glassEffectCapsuleIfAvailable()
