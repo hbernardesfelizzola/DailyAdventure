@@ -11,9 +11,13 @@ struct ContentView: View {
     var viewModel: QuestViewModel
     @Environment(\.colorScheme) var colorScheme
     @State private var isAnimating: Bool = false
-    @State private var showMainQuestPreview: Bool = false
     @State private var showVictory = false
     @State private var showMainFloatingText = false
+
+    /// Derivado dos dados — nunca reseta ao navegar entre abas.
+    private var showMainQuestPreview: Bool {
+        !viewModel.todayAdventure.mainQuest.isEmpty
+    }
     
     var body: some View {
         ZStack {
@@ -66,15 +70,14 @@ struct ContentView: View {
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(Theme.titleDenim)
                             
-                            ZStack(alignment: .leading) {
-                                if viewModel.todayAdventure.mainQuest.isEmpty {
+                            // TextField: só aparece enquanto a quest estiver vazia
+                            if !showMainQuestPreview {
+                                ZStack(alignment: .leading) {
                                     Text("What is your main quest today?")
                                         .font(.system(size: 16, weight: .regular))
                                         .foregroundColor(Theme.titleDenim.opacity(0.6))
                                         .padding(.leading, Theme.Spacing.extraSmall)
-                                }
-                                
-                                HStack {
+
                                     TextField("", text: .init(
                                         get: { viewModel.todayAdventure.mainQuest },
                                         set: { viewModel.updateMainQuest($0) }
@@ -83,34 +86,16 @@ struct ContentView: View {
                                     .textFieldStyle(.plain)
                                     .padding(Theme.Spacing.small)
                                     .foregroundColor(Theme.titleDenim)
-                                    .opacity(viewModel.isMainQuestCompleted() ? 0.7 : 1)
                                     .submitLabel(.done)
                                     .onSubmit {
-                                        if !viewModel.todayAdventure.mainQuest.isEmpty && !viewModel.isMainQuestCompleted() {
-                                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                                showMainQuestPreview = true
-                                            }
-                                        }
                                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                                     }
-                                    
-                                    if !viewModel.todayAdventure.mainQuest.isEmpty && !showMainQuestPreview {
-                                        Button(action: {
-                                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                                showMainQuestPreview = true
-                                            }
-                                        }) {
-                                            Image(systemName: "checkmark.circle")
-                                                .foregroundColor(Theme.titleDenim.opacity(0.7))
-                                                .font(.system(size: 18, weight: .semibold))
-                                        }
-                                        .padding(.trailing, Theme.Spacing.small)
-                                    }
                                 }
+                                .transition(.opacity.combined(with: .move(edge: .top)))
                             }
-                            
-                            // MARK: - Main Quest Preview
-                            if showMainQuestPreview && !viewModel.todayAdventure.mainQuest.isEmpty {
+
+                            // MARK: - Main Quest Card (sempre visível quando há texto)
+                            if showMainQuestPreview {
                                 ZStack {
                                     HStack(spacing: Theme.Spacing.small) {
                                         Button(action: {
@@ -128,26 +113,27 @@ struct ContentView: View {
                                                 .foregroundColor(viewModel.isMainQuestCompleted() ? Theme.titleDenim : Theme.titleDenim.opacity(0.5))
                                                 .font(.system(size: 18))
                                         }
-                                        
+
                                         Text(viewModel.todayAdventure.mainQuest)
                                             .font(.system(size: 16, weight: .medium))
                                             .foregroundColor(Theme.titleDenim)
                                             .strikethrough(viewModel.isMainQuestCompleted())
                                             .opacity(viewModel.isMainQuestCompleted() ? 0.6 : 1)
-                                        
+
                                         Spacer()
-                                        
-                                        if !viewModel.isMainQuestCompleted() {
-                                            Button(action: {
-                                                viewModel.updateMainQuest("")
-                                                withAnimation {
-                                                    showMainQuestPreview = false
-                                                }
-                                            }) {
-                                                Image(systemName: "xmark.circle.fill")
-                                                    .foregroundColor(Theme.titleDenim.opacity(0.6))
-                                                    .font(.system(size: 16))
+
+                                        // Xmark sempre visível — limpa e volta ao TextField
+                                        Button(action: {
+                                            if viewModel.isMainQuestCompleted() {
+                                                viewModel.toggleMainQuest()
                                             }
+                                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                                viewModel.updateMainQuest("")
+                                            }
+                                        }) {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundColor(Theme.titleDenim.opacity(0.6))
+                                                .font(.system(size: 16))
                                         }
                                     }
                                     .padding(Theme.Spacing.medium)
@@ -155,7 +141,7 @@ struct ContentView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
                                     .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
                                     .transition(.opacity.combined(with: .move(edge: .bottom)))
-                                    
+
                                     if showMainFloatingText {
                                         FloatingTextView(
                                             text: "+1 Quest! ⚔️",
