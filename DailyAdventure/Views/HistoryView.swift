@@ -191,7 +191,7 @@ struct AdventureHistoryRow: View {
                     
                     // Feedback badge
                     if adventure.feedback != .none {
-                        Text(adventure.feedback == .positive ? "👍" : "👎")
+                        Text(adventure.feedback == .positive ? "👍" : adventure.feedback == .neutral ? "😐" : "👎")
                             .font(.system(size: 20))
                     }
                     
@@ -273,7 +273,7 @@ struct AdventureHistoryRow: View {
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(Theme.titleDenim.opacity(0.8))
                         
-                        HStack(spacing: Theme.Spacing.large) {
+                        HStack(spacing: Theme.Spacing.medium) {
                             // Thumbs Up
                             Button(action: {
                                 withAnimation {
@@ -282,9 +282,9 @@ struct AdventureHistoryRow: View {
                             }) {
                                 VStack(spacing: 4) {
                                     Text("👍")
-                                        .font(.system(size: 32))
+                                        .font(.system(size: 28))
                                         .scaleEffect(adventure.feedback == .positive ? 1.2 : 1.0)
-                                    
+
                                     Text("Great day!")
                                         .font(.system(size: 11, weight: .regular))
                                         .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : Theme.titleDenim.opacity(0.5))
@@ -294,7 +294,28 @@ struct AdventureHistoryRow: View {
                                 .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
                                 .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
                             }
-                            
+
+                            // Neutral
+                            Button(action: {
+                                withAnimation {
+                                    onFeedback(adventure.feedback == .neutral ? .none : .neutral)
+                                }
+                            }) {
+                                VStack(spacing: 4) {
+                                    Text("😐")
+                                        .font(.system(size: 28))
+                                        .scaleEffect(adventure.feedback == .neutral ? 1.2 : 1.0)
+
+                                    Text("So-so")
+                                        .font(.system(size: 11, weight: .regular))
+                                        .foregroundColor(adventure.feedback == .neutral ? Color(hex: "F59E0B") : Theme.titleDenim.opacity(0.5))
+                                }
+                                .padding(Theme.Spacing.medium)
+                                .background(adventure.feedback == .neutral ? Color(hex: "F59E0B").opacity(0.15) : Color.clear)
+                                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
+                                .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
+                            }
+
                             // Thumbs Down
                             Button(action: {
                                 withAnimation {
@@ -303,9 +324,9 @@ struct AdventureHistoryRow: View {
                             }) {
                                 VStack(spacing: 4) {
                                     Text("👎")
-                                        .font(.system(size: 32))
+                                        .font(.system(size: 28))
                                         .scaleEffect(adventure.feedback == .negative ? 1.2 : 1.0)
-                                    
+
                                     Text("Tough day")
                                         .font(.system(size: 11, weight: .regular))
                                         .foregroundColor(adventure.feedback == .negative ? Theme.healthRose : Theme.titleDenim.opacity(0.5))

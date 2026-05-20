@@ -15,6 +15,7 @@ enum DayCompletionLevel {
 
 enum DayFeedback: String, Codable {
     case positive = "positive"
+    case neutral = "neutral"
     case negative = "negative"
     case none = "none"
 }
