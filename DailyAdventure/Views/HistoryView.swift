@@ -11,6 +11,7 @@ import SwiftUI
 struct HistoryView: View {
     var viewModel: QuestViewModel
     @State private var selectedAdventure: DailyAdventure? = nil
+    @State private var activeStatInfo: StreakStatInfo? = nil
     
     var allDays: [DailyAdventure] {
         let cal = Calendar.current
@@ -45,14 +46,32 @@ struct HistoryView: View {
                                 .foregroundColor(Theme.titleDenim)
                         }
                         
-                        Text("\(allDays.count) days of adventure")
-                            .font(.system(size: 14, weight: .regular))
-                            .foregroundColor(Theme.titleDenim.opacity(0.8))
-                            .padding(.horizontal, Theme.Spacing.medium)
-                            .padding(.vertical, Theme.Spacing.small)
-                            .background(Theme.titleDenim.opacity(0.1))
-                            .clipShape(Capsule())
-                            .glassEffectCapsuleIfAvailable()
+                        HStack(spacing: Theme.Spacing.small) {
+                            StreakStatBadge(info: .streak, value: viewModel.currentStreak, isActive: activeStatInfo == .streak) {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    activeStatInfo = activeStatInfo == .streak ? nil : .streak
+                                }
+                            }
+                            StreakStatBadge(info: .perfect, value: viewModel.excellenceInStreak, isActive: activeStatInfo == .perfect) {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    activeStatInfo = activeStatInfo == .perfect ? nil : .perfect
+                                }
+                            }
+                            StreakStatBadge(info: .total, value: viewModel.totalDaysAdventured, isActive: activeStatInfo == .total) {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    activeStatInfo = activeStatInfo == .total ? nil : .total
+                                }
+                            }
+                        }
+
+                        if let info = activeStatInfo {
+                            Text(info.description)
+                                .font(.system(size: 12))
+                                .foregroundColor(Theme.titleDenim.opacity(0.7))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, Theme.Spacing.medium)
+                                .transition(.opacity.combined(with: .move(edge: .top)))
+                        }
                     }
                     .padding(.top, Theme.Spacing.large)
                     
@@ -345,6 +364,53 @@ struct AdventureHistoryRow: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
         .glassEffectIfAvailable()
+    }
+}
+
+// MARK: - StreakStatInfo
+
+private enum StreakStatInfo: Identifiable, Equatable {
+    case streak, perfect, total
+    var id: Self { self }
+    var icon: String {
+        switch self {
+        case .streak:  return "🔥"
+        case .perfect: return "⭐"
+        case .total:   return "⚔️"
+        }
+    }
+    var description: String {
+        switch self {
+        case .streak:  return "Consecutive days with at least one quest completed."
+        case .perfect: return "Days where you completed every quest, within your current streak."
+        case .total:   return "All days in history where you completed at least one quest."
+        }
+    }
+}
+
+// MARK: - StreakStatBadge
+
+private struct StreakStatBadge: View {
+    let info: StreakStatInfo
+    let value: Int
+    let isActive: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 4) {
+                Text(info.icon).font(.system(size: 14))
+                Text("\(value)")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Theme.titleDenim)
+            }
+            .padding(.horizontal, Theme.Spacing.medium)
+            .padding(.vertical, Theme.Spacing.small)
+            .background(isActive ? Theme.titleDenim.opacity(0.18) : Theme.titleDenim.opacity(0.1))
+            .clipShape(Capsule())
+            .glassEffectCapsuleIfAvailable()
+        }
+        .buttonStyle(.plain)
     }
 }
 

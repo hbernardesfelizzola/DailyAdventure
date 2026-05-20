@@ -89,27 +89,10 @@ struct ProgressTabView: View {
                     .glassEffectIfAvailable()
                     .padding(.horizontal, Theme.Spacing.medium)
 
-                    // MARK: - Streak Cards
-                    VStack(spacing: Theme.Spacing.medium) {
-                        PrimaryStreakCard(
-                            icon: "🔥",
-                            value: viewModel.currentStreak,
-                            label: "day streak"
-                        )
-                        HStack(spacing: Theme.Spacing.medium) {
-                            SecondaryStreakCard(
-                                icon: "⭐",
-                                value: viewModel.excellenceInStreak,
-                                label: "perfect days"
-                            )
-                            SecondaryStreakCard(
-                                icon: "⚔️",
-                                value: viewModel.totalDaysAdventured,
-                                label: "total days"
-                            )
-                        }
+                    // MARK: - Category Insights
+                    if viewModel.categoryStats.contains(where: { $0.hasData }) {
+                        CategoryInsightsCard(stats: viewModel.categoryStats)
                     }
-                    .padding(.horizontal, Theme.Spacing.medium)
 
                     Spacer().frame(height: 100)
                 }
@@ -117,57 +100,6 @@ struct ProgressTabView: View {
             .frame(maxWidth: .infinity)
             .scrollEdgeEffectIfAvailable()
         }
-    }
-}
-
-// MARK: - PrimaryStreakCard
-
-private struct PrimaryStreakCard: View {
-    let icon: String
-    let value: Int
-    let label: String
-
-    var body: some View {
-        VStack(spacing: 6) {
-            Text(icon)
-                .font(.system(size: 44))
-            Text("\(value)")
-                .font(.system(size: 52, weight: .bold))
-                .foregroundColor(Theme.titleDenim)
-            Text(label)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Theme.titleDenim.opacity(0.7))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Theme.Spacing.large)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-        .glassEffectIfAvailable()
-    }
-}
-
-// MARK: - SecondaryStreakCard
-
-private struct SecondaryStreakCard: View {
-    let icon: String
-    let value: Int
-    let label: String
-
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(icon)
-                .font(.system(size: 24))
-            Text("\(value)")
-                .font(.system(size: 22, weight: .bold))
-                .foregroundColor(Theme.titleDenim)
-            Text(label)
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundColor(Theme.titleDenim.opacity(0.7))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(Theme.Spacing.medium)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
-        .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
     }
 }
 
@@ -266,6 +198,160 @@ struct MissingQuestRow: View {
         .background(color.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
         .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
+    }
+}
+
+// MARK: - CategoryInsightsCard
+
+private struct CategoryInsightsCard: View {
+    let stats: [CategoryStat]
+
+    private var activeStats: [CategoryStat] { stats.filter { $0.hasData } }
+
+    private var mostFocused: CategoryStat? {
+        activeStats.max(by: { $0.totalAdded < $1.totalAdded })
+    }
+
+    private var neglectedCategories: [CategoryStat] {
+        let noData = stats.filter { !$0.hasData }
+        if !noData.isEmpty { return noData }
+        guard let minAdded = activeStats.map(\.totalAdded).min() else { return [] }
+        return activeStats.filter { $0.totalAdded == minAdded }
+    }
+
+    @ViewBuilder
+    private var insightSection: some View {
+        let neglected = neglectedCategories
+        if neglected.count == stats.count {
+            InsightChip(
+                systemImage: "checkmark.circle.fill",
+                color: Theme.healthColor,
+                text: "You're keeping a great balance across all categories!"
+            )
+        } else if let focused = mostFocused, !neglected.isEmpty,
+                  focused.category != neglected[0].category,
+                  focused.totalAdded > (neglected.first?.totalAdded ?? 0) || neglected.contains(where: { !$0.hasData }) {
+            InsightChip(
+                systemImage: focused.category.icon,
+                color: focused.category.color,
+                text: "You focus most on \(focused.category.rawValue)"
+            )
+            if neglected.count == 1 {
+                InsightChip(
+                    systemImage: "exclamationmark.circle.fill",
+                    color: neglected[0].category.color,
+                    text: "Try adding more \(neglected[0].category.rawValue) quests"
+                )
+            } else {
+                let names = neglected.map(\.category.rawValue).joined(separator: " and ")
+                InsightChip(
+                    systemImage: "exclamationmark.circle.fill",
+                    color: Theme.titleDenim,
+                    text: "Try adding more \(names) quests"
+                )
+            }
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
+            VStack(alignment: .leading, spacing: 2) {
+                Label("Category Insights", systemImage: "chart.bar.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(Theme.titleDenim)
+                Text("From all your logged adventures")
+                    .font(.system(size: 12))
+                    .foregroundColor(Theme.titleDenim.opacity(0.5))
+            }
+
+            VStack(spacing: Theme.Spacing.small) {
+                ForEach(stats, id: \.category.rawValue) { stat in
+                    CategoryStatRow(stat: stat)
+                }
+            }
+
+            Divider()
+                .background(Theme.titleDenim.opacity(0.2))
+
+            VStack(alignment: .leading, spacing: Theme.Spacing.small) {
+                insightSection
+            }
+        }
+        .padding(Theme.Spacing.medium)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .glassEffectIfAvailable()
+        .padding(.horizontal, Theme.Spacing.medium)
+    }
+}
+
+// MARK: - CategoryStatRow
+
+private struct CategoryStatRow: View {
+    let stat: CategoryStat
+
+    var body: some View {
+        HStack(spacing: Theme.Spacing.small) {
+            ZStack {
+                Circle()
+                    .fill(stat.category.color.opacity(0.2))
+                    .frame(width: 32, height: 32)
+                Image(systemName: stat.category.icon)
+                    .foregroundColor(stat.category.color)
+                    .font(.system(size: 14, weight: .semibold))
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(stat.category.rawValue)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(Theme.titleDenim)
+                    Spacer()
+                    if stat.hasData {
+                        Text("\(stat.totalCompleted)/\(stat.totalAdded)")
+                            .font(.system(size: 11))
+                            .foregroundColor(Theme.titleDenim.opacity(0.6))
+                    } else {
+                        Text("No quests yet")
+                            .font(.system(size: 11))
+                            .foregroundColor(Theme.titleDenim.opacity(0.4))
+                    }
+                }
+
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Theme.titleDenim.opacity(0.1))
+                            .frame(height: 6)
+                        if stat.hasData {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(stat.category.color)
+                                .frame(width: geo.size.width * stat.completionRate, height: 6)
+                        }
+                    }
+                }
+                .frame(height: 6)
+            }
+        }
+    }
+}
+
+// MARK: - InsightChip
+
+private struct InsightChip: View {
+    let systemImage: String
+    let color: Color
+    let text: String
+
+    var body: some View {
+        HStack(spacing: Theme.Spacing.small) {
+            Image(systemName: systemImage)
+                .foregroundColor(color)
+                .font(.system(size: 13))
+            Text(text)
+                .font(.system(size: 13))
+                .foregroundColor(Theme.titleDenim.opacity(0.8))
+            Spacer()
+        }
     }
 }
 

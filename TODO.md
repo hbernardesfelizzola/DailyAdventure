@@ -6,7 +6,7 @@ Lista de funcionalidades e melhorias planejadas para o app.
 
 ### 1. Features com base pronta (menor esforço, alto impacto)
 
-- [ ] **Feedback inteligente** — analisar o histórico e mostrar em qual categoria o usuário foca mais, onde está negligenciando e sugestões de melhoria (`categoryStats` já calculado no ViewModel, falta a UI)
+- [x] **Feedback inteligente** — seção "Category Insights" na Progress tab com barras de completion rate por categoria, subtitle contextual e chips inteligentes de foco/negligência (com suporte a empate); streak cards movidos para a Adventure Log tab como badges clicáveis com descrição expansível
 - [ ] **Local Notifications** — base já existe em `NotificationService` (morning → Today, evening → Progress). Revisar comportamento, horários padrão e UX de configuração
 
 ### 2. Polish e UX
