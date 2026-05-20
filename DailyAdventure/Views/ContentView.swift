@@ -13,10 +13,12 @@ struct ContentView: View {
     @State private var isAnimating: Bool = false
     @State private var showVictory = false
     @State private var showMainFloatingText = false
+    /// false = mostra o card (default); true = mostra o TextField para edição.
+    /// Reseta para false ao navegar: se há quest salva, o card aparece automaticamente.
+    @State private var isEditingMainQuest: Bool = false
 
-    /// Derivado dos dados — nunca reseta ao navegar entre abas.
-    private var showMainQuestPreview: Bool {
-        !viewModel.todayAdventure.mainQuest.isEmpty
+    private var showMainQuestCard: Bool {
+        !viewModel.todayAdventure.mainQuest.isEmpty && !isEditingMainQuest
     }
     
     var body: some View {
@@ -70,13 +72,15 @@ struct ContentView: View {
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(Theme.titleDenim)
                             
-                            // TextField: só aparece enquanto a quest estiver vazia
-                            if !showMainQuestPreview {
+                            // TextField: visível enquanto não há card (sem quest ou editando)
+                            if !showMainQuestCard {
                                 ZStack(alignment: .leading) {
-                                    Text("What is your main quest today?")
-                                        .font(.system(size: 16, weight: .regular))
-                                        .foregroundColor(Theme.titleDenim.opacity(0.6))
-                                        .padding(.leading, Theme.Spacing.extraSmall)
+                                    if viewModel.todayAdventure.mainQuest.isEmpty {
+                                        Text("What is your main quest today?")
+                                            .font(.system(size: 16, weight: .regular))
+                                            .foregroundColor(Theme.titleDenim.opacity(0.6))
+                                            .padding(.leading, Theme.Spacing.extraSmall)
+                                    }
 
                                     TextField("", text: .init(
                                         get: { viewModel.todayAdventure.mainQuest },
@@ -88,14 +92,19 @@ struct ContentView: View {
                                     .foregroundColor(Theme.titleDenim)
                                     .submitLabel(.done)
                                     .onSubmit {
+                                        if !viewModel.todayAdventure.mainQuest.isEmpty {
+                                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                                isEditingMainQuest = false
+                                            }
+                                        }
                                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                                     }
                                 }
                                 .transition(.opacity.combined(with: .move(edge: .top)))
                             }
 
-                            // MARK: - Main Quest Card (sempre visível quando há texto)
-                            if showMainQuestPreview {
+                            // MARK: - Main Quest Card (visível após submit, persiste entre abas)
+                            if showMainQuestCard {
                                 ZStack {
                                     HStack(spacing: Theme.Spacing.small) {
                                         Button(action: {
@@ -129,6 +138,7 @@ struct ContentView: View {
                                             }
                                             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                                 viewModel.updateMainQuest("")
+                                                isEditingMainQuest = false
                                             }
                                         }) {
                                             Image(systemName: "xmark.circle.fill")
