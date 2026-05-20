@@ -6,7 +6,7 @@ Lista de funcionalidades e melhorias planejadas para o app.
 
 ### 1. Revisões e polish (menor esforço, alto impacto visual)
 
-- [ ] **Revisar seção de Histórico** — verificar se o Adventure Log ainda faz sentido com o modelo atual (layout, informações exibidas, expandable rows)
+- [x] **Revisar seção de Histórico** — verificar se o Adventure Log ainda faz sentido com o modelo atual (layout, informações exibidas, expandable rows)
 - [ ] **Revisar imagem da página principal** — garantir que o logo/imagem funcione corretamente nas versões clara e escura
 - [ ] **Opção de dia "mais ou menos"** — adicionar `DayFeedback.neutral` além de `.positive` e `.negative`
 
@@ -40,6 +40,8 @@ Lista de funcionalidades e melhorias planejadas para o app.
 
 ## Concluído
 
+- [x] **Revisar seção de Histórico** — condição de exibição de hoje corrigida (`shouldArchiveToAdventureLog`), ano adicionado ao formato de datas de anos anteriores, label redundante "Today - Current" simplificada para "Today"
+- [x] **Progress tab — redesign de streak cards e layout** — card grande (🔥) para streak atual + dois cards menores (⭐ perfect days, ⚔️ total days); seção Today movida para cima dando mais destaque ao gráfico; dia parcial no grid de 7 dias usa cor da categoria com mais quests completadas
 - [x] **Progress tab com analytics histórico** — redesign completo: streak cards (🔥 / ⭐ / ⚔️), grid de 7 dias com `DayCompletionLevel`, seção Today compacta com donut
 - [x] **DayCompletionLevel** — `.empty` / `.partial` / `.complete` no modelo; Adventure Log usa ⭐ dourado para dias 100%
 - [x] **Main quest UX** — card persiste entre abas, TextField usa rascunho local, xmark sempre visível mesmo após completar
