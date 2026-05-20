@@ -31,54 +31,6 @@ struct ProgressTabView: View {
                     }
                     .padding(.top, Theme.Spacing.large)
 
-                    // MARK: - Streak Cards
-                    HStack(spacing: Theme.Spacing.medium) {
-                        StreakCard(
-                            icon: "🔥",
-                            value: viewModel.currentStreak,
-                            label: viewModel.currentStreak == 1 ? "day" : "days",
-                            sublabel: "in a row"
-                        )
-                        StreakCard(
-                            icon: "⭐",
-                            value: viewModel.excellenceInStreak,
-                            label: viewModel.excellenceInStreak == 1 ? "day" : "days",
-                            sublabel: "100% complete"
-                        )
-                        StreakCard(
-                            icon: "⚔️",
-                            value: viewModel.totalDaysAdventured,
-                            label: viewModel.totalDaysAdventured == 1 ? "day" : "days",
-                            sublabel: "adventured"
-                        )
-                    }
-                    .padding(.horizontal, Theme.Spacing.medium)
-
-                    // MARK: - Last 7 Days
-                    VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
-                        Label("Last 7 Days", systemImage: "calendar")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(Theme.titleDenim)
-
-                        HStack(spacing: Theme.Spacing.small) {
-                            ForEach(viewModel.last7Days, id: \.date) { entry in
-                                DayCell(date: entry.date, level: entry.level)
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-
-                        // Legenda
-                        HStack(spacing: Theme.Spacing.medium) {
-                            LegendItem(color: Color(hex: "F5C518"), label: "Complete")
-                            LegendItem(color: Theme.workBlue, label: "Partial")
-                            LegendItem(color: Theme.titleDenim.opacity(0.2), label: "Empty")
-                        }
-                    }
-                    .padding(Theme.Spacing.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                    .glassEffectIfAvailable()
-                    .padding(.horizontal, Theme.Spacing.medium)
-
                     // MARK: - Today
                     VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
                         Label("Today", systemImage: "star.fill")
@@ -112,6 +64,53 @@ struct ProgressTabView: View {
                     .glassEffectIfAvailable()
                     .padding(.horizontal, Theme.Spacing.medium)
 
+                    // MARK: - Last 7 Days
+                    VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
+                        Label("Last 7 Days", systemImage: "calendar")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(Theme.titleDenim)
+
+                        HStack(spacing: Theme.Spacing.small) {
+                            ForEach(viewModel.last7Days, id: \.date) { entry in
+                                DayCell(date: entry.date, level: entry.level, dominantCategory: entry.dominantCategory)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        // Legenda
+                        HStack(spacing: Theme.Spacing.medium) {
+                            LegendItem(color: Color(hex: "F5C518"), label: "Complete")
+                            LegendItem(color: Theme.workBlue, label: "Partial")
+                            LegendItem(color: Theme.titleDenim.opacity(0.2), label: "Empty")
+                        }
+                    }
+                    .padding(Theme.Spacing.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+                    .glassEffectIfAvailable()
+                    .padding(.horizontal, Theme.Spacing.medium)
+
+                    // MARK: - Streak Cards
+                    VStack(spacing: Theme.Spacing.medium) {
+                        PrimaryStreakCard(
+                            icon: "🔥",
+                            value: viewModel.currentStreak,
+                            label: "day streak"
+                        )
+                        HStack(spacing: Theme.Spacing.medium) {
+                            SecondaryStreakCard(
+                                icon: "⭐",
+                                value: viewModel.excellenceInStreak,
+                                label: "perfect days"
+                            )
+                            SecondaryStreakCard(
+                                icon: "⚔️",
+                                value: viewModel.totalDaysAdventured,
+                                label: "total days"
+                            )
+                        }
+                    }
+                    .padding(.horizontal, Theme.Spacing.medium)
+
                     Spacer().frame(height: 100)
                 }
             }
@@ -121,27 +120,48 @@ struct ProgressTabView: View {
     }
 }
 
-// MARK: - StreakCard
+// MARK: - PrimaryStreakCard
 
-private struct StreakCard: View {
+private struct PrimaryStreakCard: View {
     let icon: String
     let value: Int
     let label: String
-    let sublabel: String
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Text(icon)
+                .font(.system(size: 44))
+            Text("\(value)")
+                .font(.system(size: 52, weight: .bold))
+                .foregroundColor(Theme.titleDenim)
+            Text(label)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(Theme.titleDenim.opacity(0.7))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Theme.Spacing.large)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .glassEffectIfAvailable()
+    }
+}
+
+// MARK: - SecondaryStreakCard
+
+private struct SecondaryStreakCard: View {
+    let icon: String
+    let value: Int
+    let label: String
 
     var body: some View {
         VStack(spacing: 4) {
             Text(icon)
-                .font(.system(size: 28))
+                .font(.system(size: 24))
             Text("\(value)")
-                .font(.system(size: 24, weight: .bold))
+                .font(.system(size: 22, weight: .bold))
                 .foregroundColor(Theme.titleDenim)
             Text(label)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(Theme.titleDenim)
-            Text(sublabel)
-                .font(.system(size: 10, weight: .regular))
-                .foregroundColor(Theme.titleDenim.opacity(0.6))
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundColor(Theme.titleDenim.opacity(0.7))
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -156,6 +176,7 @@ private struct StreakCard: View {
 private struct DayCell: View {
     let date: Date
     let level: DayCompletionLevel
+    let dominantCategory: QuestCategory?
 
     private var dayLabel: String {
         date.formatted(.dateTime.weekday(.narrow))
@@ -164,7 +185,7 @@ private struct DayCell: View {
     private var bgColor: Color {
         switch level {
         case .complete: return Color(hex: "F5C518")
-        case .partial:  return Theme.workBlue
+        case .partial:  return dominantCategory?.color ?? Theme.workBlue
         case .empty:    return Theme.titleDenim.opacity(0.15)
         }
     }

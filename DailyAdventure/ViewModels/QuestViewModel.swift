@@ -148,20 +148,31 @@ class QuestViewModel {
         return historyCount + todayCount
     }
 
-    /// Últimos 7 dias (do mais antigo para o mais recente), com nível de conclusão.
-    var last7Days: [(date: Date, level: DayCompletionLevel)] {
+    /// Últimos 7 dias (do mais antigo para o mais recente), com nível de conclusão e categoria dominante.
+    var last7Days: [(date: Date, level: DayCompletionLevel, dominantCategory: QuestCategory?)] {
         let cal = Calendar.current
         let today = Date()
-        return (0..<7).map { daysAgo -> (Date, DayCompletionLevel) in
+        return (0..<7).map { daysAgo -> (Date, DayCompletionLevel, QuestCategory?) in
             let date = cal.date(byAdding: .day, value: -daysAgo, to: today)!
+            let adventure: DailyAdventure?
             if cal.isDate(todayAdventure.date, inSameDayAs: date) {
-                return (date, todayAdventure.completionLevel)
+                adventure = todayAdventure
+            } else {
+                adventure = history.first(where: { cal.isDate($0.date, inSameDayAs: date) })
             }
-            if let match = history.first(where: { cal.isDate($0.date, inSameDayAs: date) }) {
-                return (date, match.completionLevel)
-            }
-            return (date, .empty)
+            let level = adventure?.completionLevel ?? .empty
+            let dominant = level == .partial ? adventure.flatMap(dominantCompletedCategory) : nil
+            return (date, level, dominant)
         }.reversed()
+    }
+
+    private func dominantCompletedCategory(in adventure: DailyAdventure) -> QuestCategory? {
+        var counts: [QuestCategory: Int] = [:]
+        for quest in adventure.completedQuests {
+            guard let cat = quest.category else { continue }
+            counts[cat, default: 0] += 1
+        }
+        return counts.max(by: { $0.value < $1.value })?.key
     }
 
     /// Taxa de adição e conclusão de quests por categoria, considerando todo o histórico + hoje.

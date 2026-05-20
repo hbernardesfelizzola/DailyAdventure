@@ -18,8 +18,7 @@ struct HistoryView: View {
         var days = viewModel.history.filter { entry in
             !cal.isDate(entry.date, inSameDayAs: today.date)
         }
-        if !today.mainQuest.isEmpty ||
-           !today.sideQuests.isEmpty {
+        if today.shouldArchiveToAdventureLog {
             days.insert(today, at: 0)
         }
         return days
@@ -124,7 +123,12 @@ struct AdventureHistoryRow: View {
         } else if Calendar.current.isDateInYesterday(adventure.date) {
             return "Yesterday"
         } else {
-            return adventure.date.formatted(.dateTime.weekday(.wide).day().month())
+            let sameYear = Calendar.current.isDate(adventure.date, equalTo: Date(), toGranularity: .year)
+            if sameYear {
+                return adventure.date.formatted(.dateTime.weekday(.wide).day().month())
+            } else {
+                return adventure.date.formatted(.dateTime.weekday(.wide).day().month().year())
+            }
         }
     }
     
@@ -166,19 +170,9 @@ struct AdventureHistoryRow: View {
                     
                     // Info do dia
                     VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(dateLabel)
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(Theme.titleDenim)
-                            
-                            if Calendar.current.isDateInToday(adventure.date) {
-                                Text("-")
-                                    .foregroundColor(Theme.titleDenim.opacity(0.4))
-                                Text("Current")
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(Theme.titleDenim.opacity(0.6))
-                            }
-                        }
+                        Text(dateLabel)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(Theme.titleDenim)
                         
                         if adventure.mainQuest.isEmpty {
                             Text("No main quest set")
