@@ -79,29 +79,7 @@ struct ProgressTabView: View {
                     .glassEffectIfAvailable()
                     .padding(.horizontal, Theme.Spacing.medium)
 
-                    // MARK: - Category Stats
-                    let stats = viewModel.categoryStats
-                    let hasAnyCategoryData = stats.contains(where: \.hasData)
-
-                    if hasAnyCategoryData {
-                        VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
-                            Label("Category Balance", systemImage: "chart.bar.fill")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(Theme.titleDenim)
-
-                            VStack(spacing: Theme.Spacing.medium) {
-                                ForEach(stats, id: \.category) { stat in
-                                    CategoryStatRow(stat: stat)
-                                }
-                            }
-                        }
-                        .padding(Theme.Spacing.medium)
-                        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                        .glassEffectIfAvailable()
-                        .padding(.horizontal, Theme.Spacing.medium)
-                    }
-
-                    // MARK: - Today (compacto)
+                    // MARK: - Today
                     VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
                         Label("Today", systemImage: "star.fill")
                             .font(.system(size: 16, weight: .semibold))
@@ -236,42 +214,6 @@ private struct LegendItem: View {
             Text(label)
                 .font(.system(size: 11, weight: .regular))
                 .foregroundColor(Theme.titleDenim.opacity(0.7))
-        }
-    }
-}
-
-// MARK: - CategoryStatRow
-
-private struct CategoryStatRow: View {
-    let stat: CategoryStat
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Image(systemName: stat.category.icon)
-                    .foregroundColor(stat.category.color)
-                    .font(.system(size: 13))
-                Text(stat.category.rawValue)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(Theme.titleDenim)
-                Spacer()
-                Text("\(stat.totalCompleted)/\(stat.totalAdded)")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(stat.category.color)
-            }
-
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(stat.category.color.opacity(0.15))
-                        .frame(height: 8)
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(stat.category.color)
-                        .frame(width: geo.size.width * stat.completionRate, height: 8)
-                        .animation(.easeInOut(duration: 0.6), value: stat.completionRate)
-                }
-            }
-            .frame(height: 8)
         }
     }
 }
