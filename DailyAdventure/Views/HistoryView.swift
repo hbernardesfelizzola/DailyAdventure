@@ -129,14 +129,10 @@ struct AdventureHistoryRow: View {
     }
     
     var completionColor: Color {
-        if adventure.completionPercentage >= 1.0 {
-            return Theme.healthColor
-        } else if adventure.completionPercentage >= 0.5 {
-            return Theme.workBlue
-        } else if adventure.completionPercentage > 0 {
-            return Theme.healthRose
-        } else {
-            return Theme.titleDenim.opacity(0.3)
+        switch adventure.completionLevel {
+        case .complete: return Color(hex: "F5C518") // dourado
+        case .partial:  return Theme.workBlue
+        case .empty:    return Theme.titleDenim.opacity(0.3)
         }
     }
     
@@ -150,12 +146,17 @@ struct AdventureHistoryRow: View {
                         Circle()
                             .fill(completionColor.opacity(0.2))
                             .frame(width: 44, height: 44)
-                        
-                        if adventure.hasAnyQuest {
+
+                        switch adventure.completionLevel {
+                        case .complete:
+                            Image(systemName: "star.fill")
+                                .foregroundColor(completionColor)
+                                .font(.system(size: 18, weight: .bold))
+                        case .partial:
                             Text("\(Int(adventure.completionPercentage * 100))%")
                                 .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(completionColor)
-                        } else {
+                        case .empty:
                             Image(systemName: "minus")
                                 .foregroundColor(Theme.titleDenim.opacity(0.3))
                                 .font(.system(size: 14))

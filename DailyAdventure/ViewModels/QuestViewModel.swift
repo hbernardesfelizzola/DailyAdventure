@@ -129,6 +129,83 @@ class QuestViewModel {
         todayAdventure.completedQuests.contains { $0.isMainQuest }
     }
     
+    // MARK: - Analytics
+
+    /// Dias consecutivos com ≥1 quest completada, contando de hoje para trás.
+    var currentStreak: Int {
+        streakInfo.streak
+    }
+
+    /// Quantos dias dentro da sequência atual tiveram 100% de conclusão.
+    var excellenceInStreak: Int {
+        streakInfo.excellence
+    }
+
+    /// Total de dias no histórico com ≥1 quest completada.
+    var totalDaysAdventured: Int {
+        let historyCount = history.filter { $0.completionLevel != .empty }.count
+        let todayCount = todayAdventure.completionLevel != .empty ? 1 : 0
+        return historyCount + todayCount
+    }
+
+    /// Últimos 7 dias (do mais antigo para o mais recente), com nível de conclusão.
+    var last7Days: [(date: Date, level: DayCompletionLevel)] {
+        let cal = Calendar.current
+        let today = Date()
+        return (0..<7).map { daysAgo -> (Date, DayCompletionLevel) in
+            let date = cal.date(byAdding: .day, value: -daysAgo, to: today)!
+            if cal.isDate(todayAdventure.date, inSameDayAs: date) {
+                return (date, todayAdventure.completionLevel)
+            }
+            if let match = history.first(where: { cal.isDate($0.date, inSameDayAs: date) }) {
+                return (date, match.completionLevel)
+            }
+            return (date, .empty)
+        }.reversed()
+    }
+
+    /// Taxa de adição e conclusão de quests por categoria, considerando todo o histórico + hoje.
+    var categoryStats: [CategoryStat] {
+        var counts: [QuestCategory: (added: Int, completed: Int)] = [:]
+        for cat in QuestCategory.allCases { counts[cat] = (0, 0) }
+
+        let allDays = history + [todayAdventure]
+        for day in allDays {
+            for quest in day.sideQuests {
+                guard let cat = quest.category else { continue }
+                counts[cat]?.added += 1
+                if day.completedQuests.contains(where: { $0.id == quest.id }) {
+                    counts[cat]?.completed += 1
+                }
+            }
+        }
+
+        return QuestCategory.allCases.map { cat in
+            let c = counts[cat]!
+            return CategoryStat(category: cat, totalAdded: c.added, totalCompleted: c.completed)
+        }
+    }
+
+    // Calcula streak e excelência em uma única passagem para evitar duplicação.
+    private var streakInfo: (streak: Int, excellence: Int) {
+        let cal = Calendar.current
+        var streak = 0
+        var excellence = 0
+        var expectedDate = Date()
+
+        // Considera hoje + histórico (já ordenado do mais recente)
+        let allDays = [todayAdventure] + history
+
+        for day in allDays {
+            guard cal.isDate(day.date, inSameDayAs: expectedDate) else { break }
+            guard day.completionLevel != .empty else { break }
+            streak += 1
+            if day.completionLevel == .complete { excellence += 1 }
+            expectedDate = cal.date(byAdding: .day, value: -1, to: expectedDate)!
+        }
+        return (streak, excellence)
+    }
+
     func updateFeedback(_ feedback: DayFeedback, for adventure: DailyAdventure) {
         if adventure.isToday {
             todayAdventure.feedback = feedback

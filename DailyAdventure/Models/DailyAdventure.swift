@@ -7,6 +7,12 @@
 
 import Foundation
 
+enum DayCompletionLevel {
+    case empty    // nenhuma quest completada
+    case partial  // ≥1 quest completada, mas não todas
+    case complete // 100% das quests completadas
+}
+
 enum DayFeedback: String, Codable {
     case positive = "positive"
     case negative = "negative"
@@ -56,5 +62,11 @@ struct DailyAdventure: Identifiable, Codable {
     
     var hasAnyQuest: Bool {
         !mainQuest.isEmpty || !sideQuests.isEmpty
+    }
+
+    var completionLevel: DayCompletionLevel {
+        if completedQuests.isEmpty { return .empty }
+        if completionPercentage >= 1.0 { return .complete }
+        return .partial
     }
 }
