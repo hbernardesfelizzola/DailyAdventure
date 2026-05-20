@@ -11,7 +11,7 @@ Lista de funcionalidades e melhorias planejadas para o app.
 
 ### 2. Polish e UX
 
-- [ ] **Gestos para trocar de tab** — swipe horizontal na tela principal para navegar entre abas (Today ↔ Log ↔ Progress ↔ Settings), melhorando a navegação com uma mão
+- [x] **Gestos para trocar de tab** — swipe horizontal na tela principal para navegar entre abas (Today ↔ Log ↔ Progress ↔ Settings), melhorando a navegação com uma mão
 - [ ] **Revisar imagem da página principal** — substituir o PNG atual por um SVG com `currentColor` para funcionar nativamente em dark/light mode sem hacks. Requer sessão dedicada de design
 
 ### 3. Features novas de média complexidade

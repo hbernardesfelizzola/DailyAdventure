@@ -12,12 +12,30 @@ struct MainTabView: View {
     var viewModel: QuestViewModel
     var notificationRouter: NotificationTapRouter
     @State private var selectedTab = MainTab.today
-    
+
+    private let tabCount = 4
+
+    private var swipeGesture: some Gesture {
+        DragGesture(minimumDistance: 30)
+            .onEnded { value in
+                let h = value.translation.width
+                let v = value.translation.height
+                guard abs(h) > abs(v), abs(h) > 50 else { return }
+                withAnimation {
+                    if h < 0 {
+                        selectedTab = min(selectedTab + 1, tabCount - 1)
+                    } else {
+                        selectedTab = max(selectedTab - 1, 0)
+                    }
+                }
+            }
+    }
+
     var body: some View {
         ZStack {
             AnimatedBackgroundView()
                 .ignoresSafeArea()
-            
+
             TabView(selection: $selectedTab) {
                 // MARK: - History Tab (esquerda)
                 HistoryView(viewModel: viewModel)
@@ -65,6 +83,7 @@ struct MainTabView: View {
                 notificationRouter.pendingTabIndex = nil
             }
         }
+        .simultaneousGesture(swipeGesture)
     }
 }
 
