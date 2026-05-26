@@ -7,42 +7,49 @@
 
 
 import SwiftUI
+import UserNotifications
 
 struct OnboardingView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var currentPage = 0
     @State private var isAnimating = false
-    
+
     let pages: [OnboardingPage] = [
         OnboardingPage(
-            emoji: "⚔️",
+            systemImage: "map.fill",
             title: "Welcome to DailyAdventure!",
             description: "Turn your daily life into an epic adventure. Every day is a new quest waiting to be conquered!",
             color: Theme.titleDenim
         ),
         OnboardingPage(
-            emoji: "🌟",
+            systemImage: "star.fill",
             title: "Your Daily Adventure",
             description: "Set your main quest for the day. What's the one big thing you want to accomplish today?",
             color: Theme.workBlue
         ),
         OnboardingPage(
-            emoji: "⚡️",
+            systemImage: "bolt.fill",
             title: "Side Quests",
             description: "Balance your adventure with side quests in Work, Health and Relationship. Small steps lead to great victories!",
             color: Theme.healthGreen
         ),
         OnboardingPage(
-            emoji: "🏰",
+            systemImage: "chart.pie.fill",
             title: "Check your Progress",
             description: "Watch your adventure unfold as you complete quests. Check your progress and celebrate your victories!",
             color: Theme.healthRose
         ),
         OnboardingPage(
-            emoji: "📖",
+            systemImage: "book.fill",
             title: "Adventure Log",
             description: "Look back at your past adventures, review your days and give feedback on how each one went. Your journey tells a story!",
             color: Theme.titleDenim
+        ),
+        OnboardingPage(
+            systemImage: "bell.fill",
+            title: "Stay on Track",
+            description: "Get a morning reminder to plan your adventure and an evening one to review your day. You can adjust the schedule anytime in Settings.",
+            color: Theme.workBlue
         )
     ]
 
@@ -84,7 +91,7 @@ struct OnboardingView: View {
                                 currentPage += 1
                             }
                         }) {
-                            Text("Next")
+                            Text(currentPage == pages.count - 2 ? "Start your Adventure!" : "Next")
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -93,7 +100,7 @@ struct OnboardingView: View {
                                 .clipShape(Capsule())
                                 .glassEffectCapsuleIfAvailable()
                         }
-                        
+
                         Button(action: {
                             hasSeenOnboarding = true
                         }) {
@@ -103,11 +110,13 @@ struct OnboardingView: View {
                         }
                     } else {
                         Button(action: {
-                            withAnimation {
-                                hasSeenOnboarding = true
+                            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
+                                DispatchQueue.main.async {
+                                    hasSeenOnboarding = true
+                                }
                             }
                         }) {
-                            Text("Start your Adventure!")
+                            Text("Enable reminders")
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -115,6 +124,14 @@ struct OnboardingView: View {
                                 .background(Theme.titleDenim)
                                 .clipShape(Capsule())
                                 .glassEffectCapsuleIfAvailable()
+                        }
+
+                        Button(action: {
+                            hasSeenOnboarding = true
+                        }) {
+                            Text("Skip for now")
+                                .font(.system(size: 14, weight: .regular))
+                                .foregroundColor(Theme.titleDenim.opacity(0.7))
                         }
                     }
                 }
@@ -126,7 +143,7 @@ struct OnboardingView: View {
 }
 
 struct OnboardingPage {
-    let emoji: String
+    let systemImage: String
     let title: String
     let description: String
     let color: Color
@@ -135,34 +152,35 @@ struct OnboardingPage {
 struct OnboardingPageView: View {
     let page: OnboardingPage
     @State private var isAnimating = false
-    
+
     var body: some View {
         VStack(spacing: Theme.Spacing.large) {
-            // Emoji animado
+            // Ícone animado
             ZStack {
                 Circle()
                     .fill(page.color.opacity(0.1))
                     .frame(width: 140, height: 140)
                     .scaleEffect(isAnimating ? 1.1 : 0.9)
-                
+
                 Circle()
                     .fill(page.color.opacity(0.05))
                     .frame(width: 170, height: 170)
                     .scaleEffect(isAnimating ? 1.15 : 0.85)
-                
-                Text(page.emoji)
-                    .font(.system(size: 64))
+
+                Image(systemName: page.systemImage)
+                    .font(.system(size: 56))
+                    .foregroundColor(page.color)
                     .scaleEffect(isAnimating ? 1.05 : 0.95)
             }
             .glassEffectCircleIfAvailable()
-            
+
             // Texto
             VStack(spacing: Theme.Spacing.medium) {
                 Text(page.title)
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(Theme.titleDenim)
                     .multilineTextAlignment(.center)
-                
+
                 Text(page.description)
                     .font(.system(size: 16, weight: .regular))
                     .foregroundColor(Theme.titleDenim.opacity(0.8))

@@ -51,18 +51,21 @@ struct VictoryView: View {
             
             // Conteúdo principal
             VStack(spacing: Theme.Spacing.large) {
-                // Emojis animados
+                // Ícones animados
                 HStack(spacing: Theme.Spacing.medium) {
-                    Text("⚔️")
-                        .font(.system(size: 40))
+                    Image(systemName: "shield.fill")
+                        .font(.system(size: 36))
+                        .foregroundColor(.white.opacity(0.9))
                         .rotationEffect(.degrees(isAnimating ? -15 : 15))
-                    
-                    Text("🏰")
-                        .font(.system(size: 56))
+
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 52))
+                        .foregroundColor(.yellow)
                         .scaleEffect(isAnimating ? 1.1 : 0.9)
-                    
-                    Text("⚔️")
-                        .font(.system(size: 40))
+
+                    Image(systemName: "shield.fill")
+                        .font(.system(size: 36))
+                        .foregroundColor(.white.opacity(0.9))
                         .rotationEffect(.degrees(isAnimating ? 15 : -15))
                 }
                 

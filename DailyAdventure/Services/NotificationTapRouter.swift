@@ -7,7 +7,7 @@ import UserNotifications
 
 @Observable @MainActor
 final class NotificationTapRouter: NSObject, UNUserNotificationCenterDelegate {
-    /// Main tab index: 0 Log, 1 Today, 2 Progress, 3 Settings
+    /// Main tab index: 0 Today, 1 Log, 2 Progress, 3 Settings
     var pendingTabIndex: Int?
 
     override init() {
@@ -44,8 +44,8 @@ final class NotificationTapRouter: NSObject, UNUserNotificationCenterDelegate {
 }
 
 enum MainTab {
-    static let log = 0
-    static let today = 1
+    static let today = 0
+    static let log = 1
     static let progress = 2
     static let settings = 3
 }
