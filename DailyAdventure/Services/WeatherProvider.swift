@@ -44,8 +44,9 @@ final class WeatherProvider: NSObject {
         Task {
             do {
                 let weather = try await WeatherService.shared.weather(for: location)
-                temperatureString = weather.currentWeather.temperature
-                    .formatted(.measurement(width: .narrow, usage: .weather))
+                let temp = weather.currentWeather.temperature
+                let rounded = Measurement(value: temp.value.rounded(), unit: temp.unit)
+                temperatureString = rounded.formatted(.measurement(width: .narrow, usage: .weather))
                 conditionSymbolName = weather.currentWeather.symbolName
                 lastFetchDate = Date()
             } catch {
