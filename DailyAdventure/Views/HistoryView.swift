@@ -11,7 +11,6 @@ import SwiftUI
 struct HistoryView: View {
     var viewModel: QuestViewModel
     @State private var selectedAdventure: DailyAdventure? = nil
-    @State private var activeStatInfo: StreakStatInfo? = nil
     
     var allDays: [DailyAdventure] {
         let cal = Calendar.current
@@ -34,44 +33,32 @@ struct HistoryView: View {
                     // MARK: - Header
                     VStack(spacing: Theme.Spacing.small) {
                         HStack(spacing: Theme.Spacing.medium) {
-                            Text("📖")
-                                .font(.system(size: 48))
-                                .padding(Theme.Spacing.small)
+                            Image(systemName: "book.fill")
+                                .font(.system(size: 26))
+                                .foregroundColor(Theme.titleDenim)
+                                .frame(width: 56, height: 56)
                                 .background(Theme.titleDenim.opacity(0.1))
                                 .clipShape(Circle())
                                 .glassEffectCircleIfAvailable()
-                            
+
                             Text("Adventure Log")
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(Theme.titleDenim)
                         }
                         
-                        HStack(spacing: Theme.Spacing.small) {
-                            StreakStatBadge(info: .streak, value: viewModel.currentStreak, isActive: activeStatInfo == .streak) {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    activeStatInfo = activeStatInfo == .streak ? nil : .streak
-                                }
-                            }
-                            StreakStatBadge(info: .perfect, value: viewModel.excellenceInStreak, isActive: activeStatInfo == .perfect) {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    activeStatInfo = activeStatInfo == .perfect ? nil : .perfect
-                                }
-                            }
-                            StreakStatBadge(info: .total, value: viewModel.totalDaysAdventured, isActive: activeStatInfo == .total) {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    activeStatInfo = activeStatInfo == .total ? nil : .total
-                                }
-                            }
-                        }
-
-                        if let info = activeStatInfo {
-                            Text(info.description)
-                                .font(.system(size: 12))
+                        HStack(spacing: 6) {
+                            Image(systemName: "shield.fill")
+                                .font(.system(size: 13))
                                 .foregroundColor(Theme.titleDenim.opacity(0.7))
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, Theme.Spacing.medium)
-                                .transition(.opacity.combined(with: .move(edge: .top)))
+                            Text("\(viewModel.totalDaysAdventured) days of adventure")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(Theme.titleDenim)
                         }
+                        .padding(.horizontal, Theme.Spacing.medium)
+                        .padding(.vertical, Theme.Spacing.small)
+                        .background(Theme.titleDenim.opacity(0.1))
+                        .clipShape(Capsule())
+                        .glassEffectCapsuleIfAvailable()
                     }
                     .padding(.top, Theme.Spacing.large)
                     
@@ -210,8 +197,9 @@ struct AdventureHistoryRow: View {
                     
                     // Feedback badge
                     if adventure.feedback != .none {
-                        Text(adventure.feedback == .positive ? "👍" : adventure.feedback == .neutral ? "😐" : "👎")
-                            .font(.system(size: 20))
+                        Image(systemName: adventure.feedback == .positive ? "hand.thumbsup.fill" : adventure.feedback == .negative ? "hand.thumbsdown.fill" : "minus.circle.fill")
+                            .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : adventure.feedback == .negative ? Theme.healthRose : Color(hex: "F59E0B"))
+                            .font(.system(size: 16))
                     }
                     
                     Image(systemName: isSelected ? "chevron.up" : "chevron.down")
@@ -232,45 +220,54 @@ struct AdventureHistoryRow: View {
                         VStack(alignment: .leading, spacing: Theme.Spacing.small) {
                             // Main Quest
                             if !adventure.mainQuest.isEmpty {
+                                let mainCompleted = adventure.completedQuests.contains(where: { $0.isMainQuest })
                                 HStack(spacing: Theme.Spacing.small) {
                                     Image(systemName: "star.fill")
                                         .foregroundColor(Theme.titleDenim)
                                         .font(.system(size: 12))
                                         .frame(width: 20)
-                                    
+
                                     Text(adventure.mainQuest)
                                         .font(.system(size: 13, weight: .medium))
                                         .foregroundColor(Theme.titleDenim)
-                                    
+
                                     Spacer()
-                                    
-                                    if adventure.completedQuests.contains(where: { $0.isMainQuest }) {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(Theme.healthColor)
-                                            .font(.system(size: 14))
-                                    }
+
+                                    Image(systemName: mainCompleted ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                        .foregroundColor(mainCompleted ? Theme.healthColor : Theme.titleDenim.opacity(0.3))
+                                        .font(.system(size: 14))
                                 }
                             }
-                            
-                            // Side Quests
-                            ForEach(adventure.sideQuests) { quest in
+
+                            // Side Quests (sorted: work → health → relationship)
+                            let sortedSideQuests = adventure.sideQuests.sorted { a, b in
+                                func order(_ cat: QuestCategory?) -> Int {
+                                    switch cat {
+                                    case .work: return 0
+                                    case .health: return 1
+                                    case .relationship: return 2
+                                    case nil: return 3
+                                    }
+                                }
+                                return order(a.category) < order(b.category)
+                            }
+                            ForEach(sortedSideQuests) { quest in
+                                let completed = adventure.completedQuests.contains(where: { $0.id == quest.id })
                                 HStack(spacing: Theme.Spacing.small) {
                                     Image(systemName: quest.category?.icon ?? "diamond.fill")
                                         .foregroundColor(quest.category?.color ?? Theme.titleDenim)
                                         .font(.system(size: 12))
                                         .frame(width: 20)
-                                    
+
                                     Text(quest.title)
                                         .font(.system(size: 13, weight: .regular))
                                         .foregroundColor(Theme.titleDenim.opacity(0.8))
-                                    
+
                                     Spacer()
-                                    
-                                    if adventure.completedQuests.contains(where: { $0.id == quest.id }) {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(Theme.healthColor)
-                                            .font(.system(size: 14))
-                                    }
+
+                                    Image(systemName: completed ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                        .foregroundColor(completed ? Theme.healthColor : Theme.titleDenim.opacity(0.3))
+                                        .font(.system(size: 14))
                                 }
                             }
                         }
@@ -300,8 +297,9 @@ struct AdventureHistoryRow: View {
                                 }
                             }) {
                                 VStack(spacing: 4) {
-                                    Text("👍")
-                                        .font(.system(size: 28))
+                                    Image(systemName: "hand.thumbsup.fill")
+                                        .font(.system(size: 26))
+                                        .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : Theme.titleDenim.opacity(0.35))
                                         .scaleEffect(adventure.feedback == .positive ? 1.2 : 1.0)
 
                                     Text("Great day!")
@@ -321,8 +319,9 @@ struct AdventureHistoryRow: View {
                                 }
                             }) {
                                 VStack(spacing: 4) {
-                                    Text("😐")
-                                        .font(.system(size: 28))
+                                    Image(systemName: "minus.circle.fill")
+                                        .font(.system(size: 26))
+                                        .foregroundColor(adventure.feedback == .neutral ? Color(hex: "F59E0B") : Theme.titleDenim.opacity(0.35))
                                         .scaleEffect(adventure.feedback == .neutral ? 1.2 : 1.0)
 
                                     Text("So-so")
@@ -342,8 +341,9 @@ struct AdventureHistoryRow: View {
                                 }
                             }) {
                                 VStack(spacing: 4) {
-                                    Text("👎")
-                                        .font(.system(size: 28))
+                                    Image(systemName: "hand.thumbsdown.fill")
+                                        .font(.system(size: 26))
+                                        .foregroundColor(adventure.feedback == .negative ? Theme.healthRose : Theme.titleDenim.opacity(0.35))
                                         .scaleEffect(adventure.feedback == .negative ? 1.2 : 1.0)
 
                                     Text("Tough day")
@@ -367,52 +367,6 @@ struct AdventureHistoryRow: View {
     }
 }
 
-// MARK: - StreakStatInfo
-
-private enum StreakStatInfo: Identifiable, Equatable {
-    case streak, perfect, total
-    var id: Self { self }
-    var icon: String {
-        switch self {
-        case .streak:  return "🔥"
-        case .perfect: return "⭐"
-        case .total:   return "⚔️"
-        }
-    }
-    var description: String {
-        switch self {
-        case .streak:  return "Consecutive days with at least one quest completed."
-        case .perfect: return "Days where you completed every quest, within your current streak."
-        case .total:   return "All days in history where you completed at least one quest."
-        }
-    }
-}
-
-// MARK: - StreakStatBadge
-
-private struct StreakStatBadge: View {
-    let info: StreakStatInfo
-    let value: Int
-    let isActive: Bool
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 4) {
-                Text(info.icon).font(.system(size: 14))
-                Text("\(value)")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(Theme.titleDenim)
-            }
-            .padding(.horizontal, Theme.Spacing.medium)
-            .padding(.vertical, Theme.Spacing.small)
-            .background(isActive ? Theme.titleDenim.opacity(0.18) : Theme.titleDenim.opacity(0.1))
-            .clipShape(Capsule())
-            .glassEffectCapsuleIfAvailable()
-        }
-        .buttonStyle(.plain)
-    }
-}
 
 #Preview {
     HistoryView(viewModel: QuestViewModel())

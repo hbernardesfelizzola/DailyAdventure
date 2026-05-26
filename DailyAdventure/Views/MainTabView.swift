@@ -37,22 +37,22 @@ struct MainTabView: View {
                 .ignoresSafeArea()
 
             TabView(selection: $selectedTab) {
-                // MARK: - History Tab (esquerda)
-                HistoryView(viewModel: viewModel)
-                    .tabItem {
-                        Label("Log", systemImage: "book.fill")
-                    }
-                    .tag(MainTab.log)
-                    .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-                
-                // MARK: - Today Tab (centro - tab inicial)
+                // MARK: - Today Tab (esquerda - tab inicial, mais usada)
                 ContentView(viewModel: viewModel)
                     .tabItem {
                         Label("Today", systemImage: "star.fill")
                     }
                     .tag(MainTab.today)
                     .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-                
+
+                // MARK: - History Tab
+                HistoryView(viewModel: viewModel)
+                    .tabItem {
+                        Label("Log", systemImage: "book.fill")
+                    }
+                    .tag(MainTab.log)
+                    .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+
                 // MARK: - Progress Tab
                 ProgressTabView(viewModel: viewModel)
                     .tabItem {
@@ -60,7 +60,7 @@ struct MainTabView: View {
                     }
                     .tag(MainTab.progress)
                     .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-                
+
                 // MARK: - Settings Tab (direita)
                 SettingsView()
                     .tabItem {

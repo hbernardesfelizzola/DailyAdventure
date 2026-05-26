@@ -18,14 +18,15 @@ struct ProgressTabView: View {
 
                     // MARK: - Header
                     HStack(spacing: Theme.Spacing.medium) {
-                        Text("🏰")
-                            .font(.system(size: 48))
-                            .padding(Theme.Spacing.small)
+                        Image(systemName: "chart.pie.fill")
+                            .font(.system(size: 26))
+                            .foregroundColor(Theme.titleDenim)
+                            .frame(width: 56, height: 56)
                             .background(Theme.titleDenim.opacity(0.1))
                             .clipShape(Circle())
                             .glassEffectCircleIfAvailable()
 
-                        Text("Your Journey")
+                        Text("Your Progress")
                             .font(.system(size: 28, weight: .bold))
                             .foregroundColor(Theme.titleDenim)
                     }
@@ -48,8 +49,9 @@ struct ProgressTabView: View {
                             HStack {
                                 Spacer()
                                 VStack(spacing: Theme.Spacing.small) {
-                                    Text("⚔️")
-                                        .font(.system(size: 36))
+                                    Image(systemName: "star.fill")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(Theme.titleDenim.opacity(0.3))
                                     Text("No quests set for today yet")
                                         .font(.system(size: 14, weight: .regular))
                                         .foregroundColor(Theme.titleDenim.opacity(0.7))

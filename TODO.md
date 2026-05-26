@@ -7,7 +7,7 @@ Lista de funcionalidades e melhorias planejadas para o app.
 ### 1. Features com base pronta (menor esforço, alto impacto)
 
 - [x] **Feedback inteligente** — seção "Category Insights" na Progress tab com barras de completion rate por categoria, subtitle contextual e chips inteligentes de foco/negligência (com suporte a empate); streak cards movidos para a Adventure Log tab como badges clicáveis com descrição expansível
-- [ ] **Local Notifications** — base já existe em `NotificationService` (morning → Today, evening → Progress). Revisar comportamento, horários padrão e UX de configuração
+- [x] **Local Notifications** — base já existe em `NotificationService` (morning → Today, evening → Progress). Revisar comportamento, horários padrão e UX de configuração. Permissão pedida na última tela do onboarding (página "Stay on Track")
 
 ### 2. Polish e UX
 
@@ -36,6 +36,14 @@ Lista de funcionalidades e melhorias planejadas para o app.
 - [ ] **Melhorar consistência de sequência de dias** — streak já calculado no `QuestViewModel` (`currentStreak`, `excellenceInStreak`), mas a sequência ainda pode quebrar em edge cases. Elaborar testes para cobrir os cenários problemáticos
 
 ---
+
+## Concluído (recente)
+
+---
+
+- [x] **Padronização de emojis** — botões de feedback substituídos por SF Symbols (`hand.thumbsup.fill`, `minus.circle.fill`, `hand.thumbsdown.fill`); `🌟` trocado por `⭐` no onboarding; streak badges removidos
+- [x] **Ordenação de quests nos logs** — side quests ordenadas por trabalho → saúde → relacionamento; quests incompletas marcadas com `xmark.circle.fill` (cinza)
+- [x] **Simplificação de streak** — três badges removidos; substituídos por um único badge `⚔️ X days of adventure`
 
 ## Concluído
 
