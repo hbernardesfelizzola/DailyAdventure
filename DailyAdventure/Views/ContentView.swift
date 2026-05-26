@@ -60,7 +60,6 @@ struct ContentView: View {
                                let temp = weatherProvider.temperatureString {
                                 HStack(spacing: 4) {
                                     Image(systemName: symbol)
-                                        .symbolEffect(.variableColor.iterative.reversing, options: .repeating)
                                         .font(.system(size: 13))
                                     Text(temp)
                                         .font(.system(size: 13, weight: .regular))
