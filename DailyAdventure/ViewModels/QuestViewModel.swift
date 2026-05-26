@@ -15,6 +15,7 @@ class QuestViewModel {
     var history: [DailyAdventure] = []
     private let storage = StorageService.shared
     private let dayBoundary = AdventureDayBoundary(calendar: .current)
+    private let streakCalculator = StreakCalculator(calendar: .current)
     
     init() {
         self.history = storage.loadHistory()
@@ -197,24 +198,8 @@ class QuestViewModel {
         }
     }
 
-    // Calcula streak e excelência em uma única passagem para evitar duplicação.
     private var streakInfo: (streak: Int, excellence: Int) {
-        let cal = Calendar.current
-        var streak = 0
-        var excellence = 0
-        var expectedDate = Date()
-
-        // Considera hoje + histórico (já ordenado do mais recente)
-        let allDays = [todayAdventure] + history
-
-        for day in allDays {
-            guard cal.isDate(day.date, inSameDayAs: expectedDate) else { break }
-            guard day.completionLevel != .empty else { break }
-            streak += 1
-            if day.completionLevel == .complete { excellence += 1 }
-            expectedDate = cal.date(byAdding: .day, value: -1, to: expectedDate)!
-        }
-        return (streak, excellence)
+        streakCalculator.streakInfo(today: todayAdventure, history: history)
     }
 
     func updateFeedback(_ feedback: DayFeedback, for adventure: DailyAdventure) {

@@ -15,6 +15,9 @@ struct DailyAdventureApp: App {
         if Self.isUITesting {
             UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
         }
+        if ProcessInfo.processInfo.arguments.contains("--mock-data") {
+            MockDataSeeder.seed()
+        }
     }
 
     @State private var viewModel = QuestViewModel()
