@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     var viewModel: QuestViewModel
+    var weatherProvider: WeatherProvider
     @Environment(\.colorScheme) var colorScheme
     @State private var isAnimating: Bool = false
     @State private var showVictory = false
@@ -45,16 +46,34 @@ struct ContentView: View {
                              .scaleEffect(isAnimating ? 1 : 0.95)
                              .opacity(isAnimating ? 1 : 0.8)
                         
-                        Text(Date().formatted(date: .complete, time: .omitted))
-                            .font(.system(size: 14, weight: .regular))
-                            .foregroundColor(Theme.titleDenim.opacity(0.8))
-                            .padding(.horizontal, Theme.Spacing.medium)
-                            .padding(.vertical, Theme.Spacing.small)
-                            .background(Theme.titleDenim.opacity(0.1))
-                            .clipShape(Capsule())
-                            .glassEffectCapsuleIfAvailable()
-                            .scaleEffect(isAnimating ? 1 : 0.95)
-                            .opacity(isAnimating ? 1 : 0.8)
+                        HStack(spacing: Theme.Spacing.small) {
+                            Text(Date().formatted(date: .complete, time: .omitted))
+                                .font(.system(size: 14, weight: .regular))
+                                .foregroundColor(Theme.titleDenim.opacity(0.8))
+                                .padding(.horizontal, Theme.Spacing.medium)
+                                .padding(.vertical, Theme.Spacing.small)
+                                .background(Theme.titleDenim.opacity(0.1))
+                                .clipShape(Capsule())
+                                .glassEffectCapsuleIfAvailable()
+
+                            if let symbol = weatherProvider.conditionSymbolName,
+                               let temp = weatherProvider.temperatureString {
+                                HStack(spacing: 4) {
+                                    Image(systemName: symbol)
+                                    Text(temp)
+                                }
+                                .font(.system(size: 14, weight: .regular))
+                                .foregroundColor(Theme.titleDenim.opacity(0.8))
+                                .padding(.horizontal, Theme.Spacing.medium)
+                                .padding(.vertical, Theme.Spacing.small)
+                                .background(Theme.titleDenim.opacity(0.1))
+                                .clipShape(Capsule())
+                                .glassEffectCapsuleIfAvailable()
+                                .transition(.scale.combined(with: .opacity))
+                            }
+                        }
+                        .scaleEffect(isAnimating ? 1 : 0.95)
+                        .opacity(isAnimating ? 1 : 0.8)
                     }
                     
                     // MARK: - Main Quest Card
@@ -249,22 +268,22 @@ struct ContentView: View {
 }
 
 #Preview("Light Mode") {
-    ContentView(viewModel: QuestViewModel())
+    ContentView(viewModel: QuestViewModel(), weatherProvider: WeatherProvider())
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark Mode") {
-    ContentView(viewModel: QuestViewModel())
+    ContentView(viewModel: QuestViewModel(), weatherProvider: WeatherProvider())
         .preferredColorScheme(.dark)
 }
 
 #Preview("Light Mode") {
-    ContentView(viewModel: QuestViewModel())
+    ContentView(viewModel: QuestViewModel(), weatherProvider: WeatherProvider())
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark Mode") {
-    ContentView(viewModel: QuestViewModel())
+    ContentView(viewModel: QuestViewModel(), weatherProvider: WeatherProvider())
         .preferredColorScheme(.dark)
 }
 
