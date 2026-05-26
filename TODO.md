@@ -16,7 +16,7 @@ Lista de funcionalidades e melhorias planejadas para o app.
 
 ### 3. Features novas de média complexidade
 
-- [ ] **WeatherKit** — mostrar o tempo na localidade do usuário na tela Today (onde aparece a data)
+- [x] **WeatherKit** — mostrar o tempo na localidade do usuário na tela Today (onde aparece a data)
 - [ ] **Testes e dados de mock** — ampliar cobertura com Swift Testing (unit) e XCUITest (UI), especialmente para edge cases de rollover e streak. Também cobrir `DayFeedback.neutral`. Criar um mecanismo de seed de dados (ex: launch argument `--mock-data`) que popula o app com histórico fictício de vários dias, permitindo testar analytics, streak e Adventure Log como se o app já estivesse em uso há algum tempo
 
 ### 4. Features complexas / dependências externas
