@@ -18,6 +18,12 @@ final class WeatherProvider: NSObject {
 
     override init() {
         super.init()
+        if ProcessInfo.processInfo.arguments.contains("--mock-weather") {
+            temperatureString = "23°"
+            conditionSymbolName = "cloud.sun.fill"
+            lastFetchDate = Date()
+            return
+        }
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
     }
