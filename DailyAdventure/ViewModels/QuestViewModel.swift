@@ -7,6 +7,7 @@
 
 
 import SwiftUI
+import WidgetKit
 
 @Observable
 @MainActor
@@ -45,7 +46,11 @@ class QuestViewModel {
     // MARK: - Reset
     func checkAndResetIfNeeded() {
         let now = Date()
-        guard !dayBoundary.isSameCalendarDayAsToday(todayAdventure.date, referenceNow: now) else {
+
+        // Reload from storage to pick up changes made by the widget AppIntent
+        if let fresh = storage.loadTodayAdventure(),
+           dayBoundary.isSameCalendarDayAsToday(fresh.date, referenceNow: now) {
+            todayAdventure = fresh
             return
         }
 
@@ -62,6 +67,7 @@ class QuestViewModel {
     
     private func save() {
         storage.saveTodayAdventure(todayAdventure)
+        WidgetCenter.shared.reloadAllTimelines()
     }
     
     func updateMainQuest(_ text: String) {

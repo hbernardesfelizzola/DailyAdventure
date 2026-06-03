@@ -52,6 +52,13 @@ struct DailyAdventureApp: App {
                     weatherProvider.fetchIfNeeded()
                 }
             }
+            .onOpenURL { url in
+                switch url.host {
+                case "today":    notificationRouter.pendingTabIndex = MainTab.today
+                case "progress": notificationRouter.pendingTabIndex = MainTab.progress
+                default: break
+                }
+            }
             .onAppear {
                 guard !DailyAdventureApp.isUITesting else { return }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {

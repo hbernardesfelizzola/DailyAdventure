@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@MainActor
 enum QuestCategory: String, CaseIterable, Codable {
     case work = "Work"
     case health = "Health"
