@@ -6,7 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2D5A748A2FC60D85002D3EE4 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D5A74892FC60D85002D3EE4 /* WidgetKit.framework */; };
+		2D5A748C2FC60D85002D3EE4 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D5A748B2FC60D85002D3EE4 /* SwiftUI.framework */; };
+		2D5A749B2FC60D87002D3EE4 /* DailyAdventureWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2D5A74872FC60D85002D3EE4 /* DailyAdventureWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		2D5A74992FC60D87002D3EE4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2DEFC8582F398DD400FD4634 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2D5A74862FC60D85002D3EE4;
+			remoteInfo = DailyAdventureWidgetExtension;
+		};
 		DA50EE012F398DD600FD4636 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2DEFC8582F398DD400FD4634 /* Project object */;
@@ -23,15 +36,75 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		2D5A749C2FC60D87002D3EE4 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2D5A749B2FC60D87002D3EE4 /* DailyAdventureWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		2D5A74872FC60D85002D3EE4 /* DailyAdventureWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DailyAdventureWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D5A74892FC60D85002D3EE4 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		2D5A748B2FC60D85002D3EE4 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		2D5A74A12FC60E30002D3EE4 /* DailyAdventureWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DailyAdventureWidgetExtension.entitlements; sourceTree = "<group>"; };
 		2DEFC8602F398DD500FD4634 /* DailyAdventure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DailyAdventure.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA10EE012F398DD600FD4636 /* DailyAdventureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DailyAdventureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA10EE022F398DD600FD4636 /* DailyAdventureUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DailyAdventureUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2D5A749F2FC60D87002D3EE4 /* Exceptions for "DailyAdventureWidget" folder in "DailyAdventureWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2D5A74862FC60D85002D3EE4 /* DailyAdventureWidgetExtension */;
+		};
+		2D5A74A32FC60EB0002D3EE4 /* Exceptions for "DailyAdventure" folder in "DailyAdventure" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2DEFC85F2F398DD500FD4634 /* DailyAdventure */;
+		};
+		2D5A74AB2FC60FBC002D3EE4 /* Exceptions for "DailyAdventure" folder in "DailyAdventureWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/AdventureDayBoundary.swift,
+				Models/DailyAdventure.swift,
+				Models/DrawingType.swift,
+				Models/Quest.swift,
+				Models/QuestCategory.swift,
+				Services/StorageService.swift,
+				Theme.swift,
+			);
+			target = 2D5A74862FC60D85002D3EE4 /* DailyAdventureWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		2D5A748D2FC60D85002D3EE4 /* DailyAdventureWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2D5A749F2FC60D87002D3EE4 /* Exceptions for "DailyAdventureWidget" folder in "DailyAdventureWidgetExtension" target */,
+			);
+			path = DailyAdventureWidget;
+			sourceTree = "<group>";
+		};
 		2DEFC8622F398DD500FD4634 /* DailyAdventure */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2D5A74A32FC60EB0002D3EE4 /* Exceptions for "DailyAdventure" folder in "DailyAdventure" target */,
+				2D5A74AB2FC60FBC002D3EE4 /* Exceptions for "DailyAdventure" folder in "DailyAdventureWidgetExtension" target */,
+			);
 			path = DailyAdventure;
 			sourceTree = "<group>";
 		};
@@ -48,6 +121,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2D5A74842FC60D85002D3EE4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D5A748C2FC60D85002D3EE4 /* SwiftUI.framework in Frameworks */,
+				2D5A748A2FC60D85002D3EE4 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2DEFC85D2F398DD500FD4634 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -72,12 +154,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2D5A74882FC60D85002D3EE4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2D5A74892FC60D85002D3EE4 /* WidgetKit.framework */,
+				2D5A748B2FC60D85002D3EE4 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2DEFC8572F398DD400FD4634 = {
 			isa = PBXGroup;
 			children = (
+				2D5A74A12FC60E30002D3EE4 /* DailyAdventureWidgetExtension.entitlements */,
 				2DEFC8622F398DD500FD4634 /* DailyAdventure */,
 				DA20EE012F398DD600FD4636 /* DailyAdventureTests */,
 				DA20EE022F398DD600FD4636 /* DailyAdventureUITests */,
+				2D5A748D2FC60D85002D3EE4 /* DailyAdventureWidget */,
+				2D5A74882FC60D85002D3EE4 /* Frameworks */,
 				2DEFC8612F398DD500FD4634 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +182,7 @@
 				2DEFC8602F398DD500FD4634 /* DailyAdventure.app */,
 				DA10EE012F398DD600FD4636 /* DailyAdventureTests.xctest */,
 				DA10EE022F398DD600FD4636 /* DailyAdventureUITests.xctest */,
+				2D5A74872FC60D85002D3EE4 /* DailyAdventureWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,6 +190,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		2D5A74862FC60D85002D3EE4 /* DailyAdventureWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D5A74A02FC60D87002D3EE4 /* Build configuration list for PBXNativeTarget "DailyAdventureWidgetExtension" */;
+			buildPhases = (
+				2D5A74832FC60D85002D3EE4 /* Sources */,
+				2D5A74842FC60D85002D3EE4 /* Frameworks */,
+				2D5A74852FC60D85002D3EE4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2D5A748D2FC60D85002D3EE4 /* DailyAdventureWidget */,
+			);
+			name = DailyAdventureWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = DailyAdventureWidgetExtension;
+			productReference = 2D5A74872FC60D85002D3EE4 /* DailyAdventureWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		2DEFC85F2F398DD500FD4634 /* DailyAdventure */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2DEFC86B2F398DD600FD4634 /* Build configuration list for PBXNativeTarget "DailyAdventure" */;
@@ -102,10 +219,12 @@
 				2DEFC85C2F398DD500FD4634 /* Sources */,
 				2DEFC85D2F398DD500FD4634 /* Frameworks */,
 				2DEFC85E2F398DD500FD4634 /* Resources */,
+				2D5A749C2FC60D87002D3EE4 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				2D5A749A2FC60D87002D3EE4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2DEFC8622F398DD500FD4634 /* DailyAdventure */,
@@ -173,6 +292,9 @@
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					2D5A74862FC60D85002D3EE4 = {
+						CreatedOnToolsVersion = 26.2;
+					};
 					2DEFC85F2F398DD500FD4634 = {
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = DA30EE022F398DD600FD4636;
@@ -205,11 +327,19 @@
 				2DEFC85F2F398DD500FD4634 /* DailyAdventure */,
 				DA30EE012F398DD600FD4636 /* DailyAdventureTests */,
 				DA30EE022F398DD600FD4636 /* DailyAdventureUITests */,
+				2D5A74862FC60D85002D3EE4 /* DailyAdventureWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2D5A74852FC60D85002D3EE4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2DEFC85E2F398DD500FD4634 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -234,6 +364,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2D5A74832FC60D85002D3EE4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2DEFC85C2F398DD500FD4634 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -258,6 +395,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2D5A749A2FC60D87002D3EE4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2D5A74862FC60D85002D3EE4 /* DailyAdventureWidgetExtension */;
+			targetProxy = 2D5A74992FC60D87002D3EE4 /* PBXContainerItemProxy */;
+		};
 		DA60EE012F398DD600FD4636 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2DEFC85F2F398DD500FD4634 /* DailyAdventure */;
@@ -271,6 +413,68 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		2D5A749D2FC60D87002D3EE4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = DailyAdventureWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T37N8ASHM2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DailyAdventureWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DailyAdventureWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hbfelizzola.DailyAdventure.DailyAdventureWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2D5A749E2FC60D87002D3EE4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = DailyAdventureWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T37N8ASHM2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DailyAdventureWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DailyAdventureWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hbfelizzola.DailyAdventure.DailyAdventureWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		2DEFC8692F398DD600FD4634 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -403,6 +607,7 @@
 				DEVELOPMENT_TEAM = T37N8ASHM2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DailyAdventure/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "DailyAdventure uses your location to show local weather on the Today screen.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -437,6 +642,7 @@
 				DEVELOPMENT_TEAM = T37N8ASHM2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DailyAdventure/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "DailyAdventure uses your location to show local weather on the Today screen.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -563,6 +769,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2D5A74A02FC60D87002D3EE4 /* Build configuration list for PBXNativeTarget "DailyAdventureWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D5A749D2FC60D87002D3EE4 /* Debug */,
+				2D5A749E2FC60D87002D3EE4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		2DEFC85B2F398DD400FD4634 /* Build configuration list for PBXProject "DailyAdventure" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
