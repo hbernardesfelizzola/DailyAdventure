@@ -21,7 +21,7 @@ Lista de funcionalidades e melhorias planejadas para o app.
 
 ### 4. Features complexas / dependências externas
 
-- [ ] **WidgetKit** — avaliar opções de widgets: (1) preencher uma nova aventura; (2) progresso do dia; (3) outras a definir durante a implementação
+- [x] **WidgetKit** — DailyQuestWidget (small: reminder de quest, medium: lista + donut chart) e LockScreenWidget (circular, rectangular, inline). App Group configurado, deep links para Today e Progress tabs.
 - [ ] **Localização e acessibilidade** — localizar o app conforme a localidade do usuário; suporte a Dynamic Type, fonte para dislexia e outras opções de acessibilidade
 
 ### 5. Alto risco — discutir antes de implementar
