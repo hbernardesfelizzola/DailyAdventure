@@ -20,13 +20,14 @@ struct MockDataSeeder {
 
         let today = makeTodayAdventure(date: now)
 
+        let defaults = UserDefaults(suiteName: StorageService.appGroupID) ?? .standard
         if let historyData = try? JSONEncoder().encode(history) {
-            UserDefaults.standard.set(historyData, forKey: "adventureHistory")
+            defaults.set(historyData, forKey: "adventureHistory")
         }
         if let todayData = try? JSONEncoder().encode(today) {
-            UserDefaults.standard.set(todayData, forKey: "todayAdventure")
+            defaults.set(todayData, forKey: "todayAdventure")
         }
-        UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+        defaults.set(true, forKey: "hasSeenOnboarding")
     }
 
     // MARK: - Day builders
