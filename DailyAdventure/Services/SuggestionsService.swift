@@ -94,7 +94,7 @@ class SuggestionsService {
     
     func getSuggestion(for category: QuestCategory) -> String {
         let suggestions: [String]
-        
+
         switch category {
         case .work:
             suggestions = workSuggestions
@@ -103,7 +103,8 @@ class SuggestionsService {
         case .relationship:
             suggestions = relationshipSuggestions
         }
-        
-        return suggestions.randomElement() ?? "Add a quest"
+
+        let key = suggestions.randomElement() ?? "Add a quest"
+        return NSLocalizedString(key, comment: "Side quest suggestion")
     }
 }

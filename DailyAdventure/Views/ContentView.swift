@@ -48,7 +48,7 @@ struct ContentView: View {
                         
                         HStack(spacing: Theme.Spacing.small) {
                             Text(Date().formatted(date: .complete, time: .omitted))
-                                .font(.system(size: 14, weight: .regular))
+                                .font(.caption)
                                 .foregroundColor(Theme.titleDenim.opacity(0.8))
                                 .padding(.horizontal, Theme.Spacing.medium)
                                 .padding(.vertical, Theme.Spacing.small)
@@ -88,7 +88,7 @@ struct ContentView: View {
                         VStack(alignment: .leading, spacing: Theme.Spacing.small) {
                             // Label igual ao Side Quests
                             Label("Daily Adventure", systemImage: Theme.Icons.mainQuest)
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.headline)
                                 .foregroundColor(Theme.titleDenim)
                             
                             // TextField: visível enquanto não há quest salva no ViewModel
@@ -96,13 +96,13 @@ struct ContentView: View {
                                 ZStack(alignment: .leading) {
                                     if mainQuestDraft.isEmpty {
                                         Text("What is your main quest today?")
-                                            .font(.system(size: 16, weight: .regular))
+                                            .font(.body)
                                             .foregroundColor(Theme.titleDenim.opacity(0.6))
                                             .padding(.leading, Theme.Spacing.extraSmall)
                                     }
 
                                     TextField("", text: $mainQuestDraft)
-                                        .font(.system(size: 16, weight: .medium))
+                                        .font(.body)
                                         .textFieldStyle(.plain)
                                         .padding(Theme.Spacing.small)
                                         .foregroundColor(Theme.titleDenim)
@@ -139,9 +139,10 @@ struct ContentView: View {
                                                 .foregroundColor(viewModel.isMainQuestCompleted() ? Theme.titleDenim : Theme.titleDenim.opacity(0.5))
                                                 .font(.system(size: 18))
                                         }
+                                        .accessibilityLabel(viewModel.isMainQuestCompleted() ? "Mark main quest incomplete" : "Mark main quest complete")
 
                                         Text(viewModel.todayAdventure.mainQuest)
-                                            .font(.system(size: 16, weight: .medium))
+                                            .font(.body)
                                             .foregroundColor(Theme.titleDenim)
                                             .strikethrough(viewModel.isMainQuestCompleted())
                                             .opacity(viewModel.isMainQuestCompleted() ? 0.6 : 1)
@@ -162,6 +163,7 @@ struct ContentView: View {
                                                 .foregroundColor(Theme.titleDenim.opacity(0.6))
                                                 .font(.system(size: 16))
                                         }
+                                        .accessibilityLabel("Remove main quest")
                                     }
                                     .padding(Theme.Spacing.medium)
                                     .background(Theme.titleDenim.opacity(viewModel.isMainQuestCompleted() ? 0.05 : 0.1))
@@ -200,7 +202,7 @@ struct ContentView: View {
                     // MARK: - Side Quests Card
                     VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
                         Label("Side Quests", systemImage: Theme.Icons.sideQuest)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.headline)
                             .foregroundColor(Theme.titleDenim)
                         
                         VStack(spacing: Theme.Spacing.medium) {
@@ -217,6 +219,16 @@ struct ContentView: View {
                         }
                     }
                     .padding(Theme.Spacing.medium)
+                    .background(
+                        LinearGradient(
+                            colors: [
+                                Theme.titleDenim.opacity(0.1),
+                                Theme.titleDenim.opacity(0.03)
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
                     .glassEffectIfAvailable()
                     .padding(.horizontal, Theme.Spacing.medium)

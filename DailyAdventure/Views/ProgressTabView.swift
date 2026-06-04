@@ -27,7 +27,8 @@ struct ProgressTabView: View {
                             .glassEffectCircleIfAvailable()
 
                         Text("Your Progress")
-                            .font(.system(size: 28, weight: .bold))
+                            .font(.title)
+                            .fontWeight(.bold)
                             .foregroundColor(Theme.titleDenim)
                     }
                     .padding(.top, Theme.Spacing.large)
@@ -35,7 +36,7 @@ struct ProgressTabView: View {
                     // MARK: - Today
                     VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
                         Label("Today", systemImage: "star.fill")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.headline)
                             .foregroundColor(Theme.titleDenim)
 
                         if viewModel.todayAdventure.hasAnyQuest {
@@ -53,7 +54,7 @@ struct ProgressTabView: View {
                                         .font(.system(size: 30))
                                         .foregroundColor(Theme.titleDenim.opacity(0.3))
                                     Text("No quests set for today yet")
-                                        .font(.system(size: 14, weight: .regular))
+                                        .font(.subheadline)
                                         .foregroundColor(Theme.titleDenim.opacity(0.7))
                                 }
                                 Spacer()
@@ -69,7 +70,7 @@ struct ProgressTabView: View {
                     // MARK: - Last 7 Days
                     VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
                         Label("Last 7 Days", systemImage: "calendar")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.headline)
                             .foregroundColor(Theme.titleDenim)
 
                         HStack(spacing: Theme.Spacing.small) {
@@ -148,7 +149,8 @@ private struct DayCell: View {
             .glassEffectIfAvailable(cornerRadius: 8)
 
             Text(dayLabel)
-                .font(.system(size: 10, weight: .medium))
+                .font(.caption2)
+                .fontWeight(.medium)
                 .foregroundColor(Theme.titleDenim.opacity(0.6))
         }
         .frame(maxWidth: .infinity)
@@ -167,7 +169,7 @@ private struct LegendItem: View {
                 .fill(color)
                 .frame(width: 8, height: 8)
             Text(label)
-                .font(.system(size: 11, weight: .regular))
+                .font(.caption2)
                 .foregroundColor(Theme.titleDenim.opacity(0.7))
         }
     }
@@ -228,28 +230,31 @@ private struct CategoryInsightsCard: View {
             InsightChip(
                 systemImage: "checkmark.circle.fill",
                 color: Theme.healthColor,
-                text: "You're keeping a great balance across all categories!"
+                text: String(localized: "You're keeping a great balance across all categories!")
             )
         } else if let focused = mostFocused, !neglected.isEmpty,
                   focused.category != neglected[0].category,
                   focused.totalAdded > (neglected.first?.totalAdded ?? 0) || neglected.contains(where: { !$0.hasData }) {
+            let focusedName = NSLocalizedString(focused.category.rawValue, comment: "")
             InsightChip(
                 systemImage: focused.category.icon,
                 color: focused.category.color,
-                text: "You focus most on \(focused.category.rawValue)"
+                text: String(format: NSLocalizedString("insight.focus_format", comment: ""), focusedName)
             )
             if neglected.count == 1 {
+                let neglectedName = NSLocalizedString(neglected[0].category.rawValue, comment: "")
                 InsightChip(
                     systemImage: "exclamationmark.circle.fill",
                     color: neglected[0].category.color,
-                    text: "Try adding more \(neglected[0].category.rawValue) quests"
+                    text: String(format: NSLocalizedString("insight.neglect_format", comment: ""), neglectedName)
                 )
             } else {
-                let names = neglected.map(\.category.rawValue).joined(separator: " and ")
+                let separator = NSLocalizedString(" and ", comment: "")
+                let names = neglected.map { NSLocalizedString($0.category.rawValue, comment: "") }.joined(separator: separator)
                 InsightChip(
                     systemImage: "exclamationmark.circle.fill",
                     color: Theme.titleDenim,
-                    text: "Try adding more \(names) quests"
+                    text: String(format: NSLocalizedString("insight.neglect_format", comment: ""), names)
                 )
             }
         }
@@ -259,10 +264,10 @@ private struct CategoryInsightsCard: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
             VStack(alignment: .leading, spacing: 2) {
                 Label("Category Insights", systemImage: "chart.bar.fill")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.headline)
                     .foregroundColor(Theme.titleDenim)
                 Text("From all your logged adventures")
-                    .font(.system(size: 12))
+                    .font(.footnote)
                     .foregroundColor(Theme.titleDenim.opacity(0.5))
             }
 
@@ -305,16 +310,17 @@ private struct CategoryStatRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(stat.category.rawValue)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.footnote)
+                        .fontWeight(.semibold)
                         .foregroundColor(Theme.titleDenim)
                     Spacer()
                     if stat.hasData {
                         Text("\(stat.totalCompleted)/\(stat.totalAdded)")
-                            .font(.system(size: 11))
+                            .font(.caption2)
                             .foregroundColor(Theme.titleDenim.opacity(0.6))
                     } else {
                         Text("No quests yet")
-                            .font(.system(size: 11))
+                            .font(.caption2)
                             .foregroundColor(Theme.titleDenim.opacity(0.4))
                     }
                 }
@@ -350,7 +356,7 @@ private struct InsightChip: View {
                 .foregroundColor(color)
                 .font(.system(size: 13))
             Text(text)
-                .font(.system(size: 13))
+                .font(.footnote)
                 .foregroundColor(Theme.titleDenim.opacity(0.8))
             Spacer()
         }

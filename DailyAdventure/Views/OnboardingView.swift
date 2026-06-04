@@ -92,7 +92,7 @@ struct OnboardingView: View {
                             }
                         }) {
                             Text(currentPage == pages.count - 2 ? "Start your Adventure!" : "Next")
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(Theme.Spacing.medium)
@@ -105,7 +105,7 @@ struct OnboardingView: View {
                             hasSeenOnboarding = true
                         }) {
                             Text("Skip")
-                                .font(.system(size: 14, weight: .regular))
+                                .font(.subheadline)
                                 .foregroundColor(Theme.titleDenim.opacity(0.7))
                         }
                     } else {
@@ -117,7 +117,7 @@ struct OnboardingView: View {
                             }
                         }) {
                             Text("Enable reminders")
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(Theme.Spacing.medium)
@@ -130,7 +130,7 @@ struct OnboardingView: View {
                             hasSeenOnboarding = true
                         }) {
                             Text("Skip for now")
-                                .font(.system(size: 14, weight: .regular))
+                                .font(.subheadline)
                                 .foregroundColor(Theme.titleDenim.opacity(0.7))
                         }
                     }
@@ -176,13 +176,13 @@ struct OnboardingPageView: View {
 
             // Texto
             VStack(spacing: Theme.Spacing.medium) {
-                Text(page.title)
-                    .font(.system(size: 24, weight: .bold))
+                Text(LocalizedStringKey(page.title))
+                    .font(.title2).fontWeight(.bold)
                     .foregroundColor(Theme.titleDenim)
                     .multilineTextAlignment(.center)
 
-                Text(page.description)
-                    .font(.system(size: 16, weight: .regular))
+                Text(LocalizedStringKey(page.description))
+                    .font(.body)
                     .foregroundColor(Theme.titleDenim.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, Theme.Spacing.large)
