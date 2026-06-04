@@ -41,15 +41,21 @@ struct SideQuestRow: View {
                 
                 ZStack(alignment: .leading) {
                     if newQuestText.isEmpty && !isFocused {
-                        Text("\(category.rawValue) Suggestion: \(suggestion)")
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(category.color.opacity(0.85))
-                            .padding(.vertical, Theme.Spacing.small)
-                            .padding(.horizontal, Theme.Spacing.small)
+                        HStack(spacing: 4) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 12, weight: .regular))
+                                .foregroundColor(category.color.opacity(0.6))
+                            Text(suggestion)
+                                .font(.body)
+                                .foregroundColor(category.color.opacity(0.75))
+                                .lineLimit(1)
+                        }
+                        .padding(.vertical, Theme.Spacing.small)
+                        .padding(.horizontal, Theme.Spacing.small)
                     }
-                    
+
                     TextField("", text: $newQuestText)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.body)
                         .textFieldStyle(.plain)
                         .foregroundColor(Theme.titleDenim)
                         .padding(.vertical, Theme.Spacing.small)
@@ -65,15 +71,18 @@ struct SideQuestRow: View {
                                 newQuestText = suggestion
                             }
                         }
-                        .background(
-                            RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall)
-                                .fill(isFocused ? Theme.titleDenim.opacity(0.05) : Color.clear)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall)
-                                .stroke(isFocused ? category.color : Color.clear, lineWidth: 2)
-                        )
                 }
+                .background(
+                    RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall)
+                        .fill(isFocused ? category.color.opacity(0.08) : category.color.opacity(0.04))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall)
+                        .stroke(
+                            isFocused ? category.color : category.color.opacity(0.35),
+                            lineWidth: isFocused ? 2 : 1
+                        )
+                )
                 
                 if isFocused && !newQuestText.isEmpty {
                     Button(action: {
@@ -84,6 +93,7 @@ struct SideQuestRow: View {
                             .font(.system(size: 18))
                             .frame(width: 30, height: 30)
                     }
+                    .accessibilityLabel("Clear")
                     .padding(.trailing, Theme.Spacing.small)
                 } else if !newQuestText.isEmpty {
                     Button(action: submitQuest) {
@@ -92,6 +102,7 @@ struct SideQuestRow: View {
                             .font(.system(size: 18, weight: .semibold))
                             .frame(width: 30, height: 30)
                     }
+                    .accessibilityLabel("Submit quest")
                     .glassEffectIfAvailable(cornerRadius: 15)
                     .padding(.trailing, Theme.Spacing.small)
                 } else {
@@ -101,6 +112,7 @@ struct SideQuestRow: View {
                             .font(.system(size: 14, weight: .semibold))
                             .frame(width: 30, height: 30)
                     }
+                    .accessibilityLabel("New suggestion")
                     .glassEffectIfAvailable(cornerRadius: 15)
                     .padding(.trailing, Theme.Spacing.small)
                 }
@@ -174,9 +186,10 @@ struct SideQuestItemRow: View {
                         .foregroundColor(isCompleted ? quest.category?.color ?? Theme.titleDenim : Theme.titleDenim.opacity(0.5))
                         .font(.system(size: 18))
                 }
-                
+                .accessibilityLabel(isCompleted ? "Mark quest incomplete" : "Mark quest complete")
+
                 Text(quest.title)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.subheadline)
                     .foregroundColor(Theme.titleDenim)
                     .strikethrough(isCompleted)
                     .opacity(isCompleted ? 0.6 : 1)
@@ -188,6 +201,7 @@ struct SideQuestItemRow: View {
                         .foregroundColor(Theme.titleDenim.opacity(0.5))
                         .font(.system(size: 16))
                 }
+                .accessibilityLabel("Delete quest")
             }
             .padding(Theme.Spacing.small)
             .background((quest.category?.color ?? Theme.titleDenim).opacity(isCompleted ? 0.05 : 0.15))

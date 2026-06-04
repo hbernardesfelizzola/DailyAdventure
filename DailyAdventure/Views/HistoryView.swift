@@ -11,7 +11,7 @@ import SwiftUI
 struct HistoryView: View {
     var viewModel: QuestViewModel
     @State private var selectedAdventure: DailyAdventure? = nil
-    
+
     var allDays: [DailyAdventure] {
         let cal = Calendar.current
         let today = viewModel.todayAdventure
@@ -23,11 +23,11 @@ struct HistoryView: View {
         }
         return days
     }
-    
+
     var body: some View {
         ZStack {
             AnimatedBackgroundView()
-            
+
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: Theme.Spacing.large) {
                     // MARK: - Header
@@ -42,16 +42,18 @@ struct HistoryView: View {
                                 .glassEffectCircleIfAvailable()
 
                             Text("Adventure Log")
-                                .font(.system(size: 28, weight: .bold))
+                                .font(.title)
+                                .fontWeight(.bold)
                                 .foregroundColor(Theme.titleDenim)
                         }
-                        
+
                         HStack(spacing: 6) {
                             Image(systemName: "shield.fill")
                                 .font(.system(size: 13))
                                 .foregroundColor(Theme.titleDenim.opacity(0.7))
                             Text("\(viewModel.totalDaysAdventured) days of adventure")
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(.footnote)
+                                .fontWeight(.semibold)
                                 .foregroundColor(Theme.titleDenim)
                         }
                         .padding(.horizontal, Theme.Spacing.medium)
@@ -61,19 +63,19 @@ struct HistoryView: View {
                         .glassEffectCapsuleIfAvailable()
                     }
                     .padding(.top, Theme.Spacing.large)
-                    
+
                     // MARK: - Lista de dias
                     if allDays.isEmpty {
                         VStack(spacing: Theme.Spacing.medium) {
                             Text("📜")
                                 .font(.system(size: 48))
-                            
+
                             Text("No adventures yet!")
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.headline)
                                 .foregroundColor(Theme.titleDenim)
-                            
+
                             Text("Start your first adventure today!")
-                                .font(.system(size: 14, weight: .regular))
+                                .font(.subheadline)
                                 .foregroundColor(Theme.titleDenim.opacity(0.8))
                                 .multilineTextAlignment(.center)
                         }
@@ -105,7 +107,7 @@ struct HistoryView: View {
                         }
                         .padding(.horizontal, Theme.Spacing.medium)
                     }
-                    
+
                     Spacer()
                         .frame(height: 100)
                 }
@@ -122,7 +124,7 @@ struct AdventureHistoryRow: View {
     let isSelected: Bool
     let onTap: () -> Void
     let onFeedback: (DayFeedback) -> Void
-    
+
     var dateLabel: String {
         if Calendar.current.isDateInToday(adventure.date) {
             return "Today"
@@ -137,7 +139,7 @@ struct AdventureHistoryRow: View {
             }
         }
     }
-    
+
     var completionColor: Color {
         switch adventure.completionLevel {
         case .complete: return Color(hex: "F5C518") // dourado
@@ -145,7 +147,7 @@ struct AdventureHistoryRow: View {
         case .empty:    return Theme.titleDenim.opacity(0.3)
         }
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: - Row principal
@@ -164,7 +166,8 @@ struct AdventureHistoryRow: View {
                                 .font(.system(size: 18, weight: .bold))
                         case .partial:
                             Text("\(Int(adventure.completionPercentage * 100))%")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.caption2)
+                                .fontWeight(.bold)
                                 .foregroundColor(completionColor)
                         case .empty:
                             Image(systemName: "minus")
@@ -173,48 +176,49 @@ struct AdventureHistoryRow: View {
                         }
                     }
                     .glassEffectCircleIfAvailable()
-                    
+
                     // Info do dia
                     VStack(alignment: .leading, spacing: 4) {
                         Text(dateLabel)
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
                             .foregroundColor(Theme.titleDenim)
-                        
+
                         if adventure.mainQuest.isEmpty {
                             Text("No main quest set")
-                                .font(.system(size: 12, weight: .regular))
+                                .font(.caption)
                                 .foregroundColor(Theme.titleDenim.opacity(0.5))
                                 .italic()
                         } else {
                             Text(adventure.mainQuest)
-                                .font(.system(size: 12, weight: .regular))
+                                .font(.caption)
                                 .foregroundColor(Theme.titleDenim.opacity(0.8))
                                 .lineLimit(1)
                         }
                     }
-                    
+
                     Spacer()
-                    
+
                     // Feedback badge
                     if adventure.feedback != .none {
                         Image(systemName: adventure.feedback == .positive ? "hand.thumbsup.fill" : adventure.feedback == .negative ? "hand.thumbsdown.fill" : "minus.circle.fill")
                             .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : adventure.feedback == .negative ? Theme.healthRose : Color(hex: "F59E0B"))
                             .font(.system(size: 16))
                     }
-                    
+
                     Image(systemName: isSelected ? "chevron.up" : "chevron.down")
                         .foregroundColor(Theme.titleDenim.opacity(0.5))
                         .font(.system(size: 12, weight: .semibold))
                 }
                 .padding(Theme.Spacing.medium)
             }
-            
+
             // MARK: - Conteúdo expandido
             if isSelected {
                 VStack(spacing: Theme.Spacing.medium) {
                     Divider()
                         .padding(.horizontal, Theme.Spacing.medium)
-                    
+
                     // Quests do dia
                     if adventure.hasAnyQuest {
                         VStack(alignment: .leading, spacing: Theme.Spacing.small) {
@@ -228,7 +232,8 @@ struct AdventureHistoryRow: View {
                                         .frame(width: 20)
 
                                     Text(adventure.mainQuest)
-                                        .font(.system(size: 13, weight: .medium))
+                                        .font(.footnote)
+                                        .fontWeight(.medium)
                                         .foregroundColor(Theme.titleDenim)
 
                                     Spacer()
@@ -260,7 +265,7 @@ struct AdventureHistoryRow: View {
                                         .frame(width: 20)
 
                                     Text(quest.title)
-                                        .font(.system(size: 13, weight: .regular))
+                                        .font(.footnote)
                                         .foregroundColor(Theme.titleDenim.opacity(0.8))
 
                                     Spacer()
@@ -274,21 +279,22 @@ struct AdventureHistoryRow: View {
                         .padding(.horizontal, Theme.Spacing.medium)
                     } else {
                         Text("No quests recorded for this day")
-                            .font(.system(size: 13, weight: .regular))
+                            .font(.footnote)
                             .foregroundColor(Theme.titleDenim.opacity(0.5))
                             .italic()
                             .padding(.horizontal, Theme.Spacing.medium)
                     }
-                    
+
                     Divider()
                         .padding(.horizontal, Theme.Spacing.medium)
-                    
+
                     // MARK: - Feedback
                     VStack(spacing: Theme.Spacing.small) {
                         Text("How was this day?")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.footnote)
+                            .fontWeight(.semibold)
                             .foregroundColor(Theme.titleDenim.opacity(0.8))
-                        
+
                         HStack(spacing: Theme.Spacing.medium) {
                             // Thumbs Up
                             Button(action: {
@@ -303,7 +309,7 @@ struct AdventureHistoryRow: View {
                                         .scaleEffect(adventure.feedback == .positive ? 1.2 : 1.0)
 
                                     Text("Great day!")
-                                        .font(.system(size: 11, weight: .regular))
+                                        .font(.caption2)
                                         .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : Theme.titleDenim.opacity(0.5))
                                 }
                                 .padding(Theme.Spacing.medium)
@@ -311,6 +317,7 @@ struct AdventureHistoryRow: View {
                                 .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
                                 .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
                             }
+                            .accessibilityLabel("Great day")
 
                             // Neutral
                             Button(action: {
@@ -325,7 +332,7 @@ struct AdventureHistoryRow: View {
                                         .scaleEffect(adventure.feedback == .neutral ? 1.2 : 1.0)
 
                                     Text("So-so")
-                                        .font(.system(size: 11, weight: .regular))
+                                        .font(.caption2)
                                         .foregroundColor(adventure.feedback == .neutral ? Color(hex: "F59E0B") : Theme.titleDenim.opacity(0.5))
                                 }
                                 .padding(Theme.Spacing.medium)
@@ -333,6 +340,7 @@ struct AdventureHistoryRow: View {
                                 .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
                                 .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
                             }
+                            .accessibilityLabel("So-so")
 
                             // Thumbs Down
                             Button(action: {
@@ -347,7 +355,7 @@ struct AdventureHistoryRow: View {
                                         .scaleEffect(adventure.feedback == .negative ? 1.2 : 1.0)
 
                                     Text("Tough day")
-                                        .font(.system(size: 11, weight: .regular))
+                                        .font(.caption2)
                                         .foregroundColor(adventure.feedback == .negative ? Theme.healthRose : Theme.titleDenim.opacity(0.5))
                                 }
                                 .padding(Theme.Spacing.medium)
@@ -355,6 +363,7 @@ struct AdventureHistoryRow: View {
                                 .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
                                 .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
                             }
+                            .accessibilityLabel("Tough day")
                         }
                     }
                     .padding(.bottom, Theme.Spacing.medium)

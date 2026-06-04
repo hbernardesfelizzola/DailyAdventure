@@ -158,11 +158,11 @@ struct DrawingProgressView: View {
                     // Centro do gráfico
                     VStack(spacing: 2) {
                         Text("\(Int(animatedProgress * 100))%")
-                            .font(.system(size: 18, weight: .bold))
+                            .font(.title3).fontWeight(.bold)
                             .foregroundColor(Theme.titleDenim)
 
                         Text(completedQuests.isEmpty ? "Start!" : "Done")
-                            .font(.system(size: 10, weight: .regular))
+                            .font(.caption2)
                             .foregroundColor(Theme.titleDenim.opacity(0.7))
                     }
                 }
@@ -205,13 +205,13 @@ struct DrawingProgressView: View {
             VStack(spacing: Theme.Spacing.small) {
                 HStack {
                     Text("Overall Progress")
-                        .font(.system(size: 14, weight: .regular))
+                        .font(.subheadline)
                         .foregroundColor(Theme.titleDenim)
-                    
+
                     Spacer()
-                    
+
                     Text("\(completedQuests.count)/\(totalQuests)")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.subheadline).fontWeight(.semibold)
                         .foregroundColor(Theme.titleDenim)
                 }
                 
@@ -274,13 +274,13 @@ struct CategoryBadge: View {
             .glassEffectCircleIfAvailable()
 
             Text(category)
-                .font(.system(size: 11, weight: .regular))
+                .font(.caption2)
                 .foregroundColor(Theme.titleDenim)
 
             Spacer()
 
             Text(progress)
-                .font(.system(size: 11, weight: .semibold))
+                .font(.caption2).fontWeight(.semibold)
                 .foregroundColor(color)
         }
         .padding(.horizontal, 8)

@@ -71,12 +71,14 @@ struct VictoryView: View {
                 
                 VStack(spacing: Theme.Spacing.small) {
                     Text("Adventure Complete!")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .fontDesign(.rounded)
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
-                    
+
                     Text("You conquered today's quests!")
-                        .font(.system(size: 16, weight: .regular))
+                        .font(.body)
                         .foregroundColor(.white.opacity(0.8))
                         .multilineTextAlignment(.center)
                 }
