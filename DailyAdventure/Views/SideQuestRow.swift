@@ -31,11 +31,11 @@ struct SideQuestRow: View {
                 ZStack {
                     Circle()
                         .fill(category.color.opacity(0.3))
-                        .frame(width: 40, height: 40)
-                    
+                        .frame(width: 44, height: 44)
+
                     Image(systemName: category.icon)
                         .foregroundColor(category.color)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.callout)
                 }
                 .glassEffectCircleIfAvailable()
                 
@@ -43,7 +43,7 @@ struct SideQuestRow: View {
                     if newQuestText.isEmpty && !isFocused {
                         HStack(spacing: 4) {
                             Image(systemName: "pencil")
-                                .font(.system(size: 12, weight: .regular))
+                                .font(.caption)
                                 .foregroundColor(category.color.opacity(0.6))
                             Text(suggestion)
                                 .font(.body)
@@ -90,8 +90,8 @@ struct SideQuestRow: View {
                     }) {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(Theme.titleDenim.opacity(0.5))
-                            .font(.system(size: 18))
-                            .frame(width: 30, height: 30)
+                            .font(.body)
+                            .frame(width: 44, height: 44)
                     }
                     .accessibilityLabel("Clear")
                     .padding(.trailing, Theme.Spacing.small)
@@ -99,8 +99,8 @@ struct SideQuestRow: View {
                     Button(action: submitQuest) {
                         Image(systemName: "checkmark.circle")
                             .foregroundColor(Theme.titleDenim.opacity(0.7))
-                            .font(.system(size: 18, weight: .semibold))
-                            .frame(width: 30, height: 30)
+                            .font(.body)
+                            .frame(width: 44, height: 44)
                     }
                     .accessibilityLabel("Submit quest")
                     .glassEffectIfAvailable(cornerRadius: 15)
@@ -109,8 +109,8 @@ struct SideQuestRow: View {
                     Button(action: generateNewSuggestion) {
                         Image(systemName: "sparkles")
                             .foregroundColor(category.color)
-                            .font(.system(size: 14, weight: .semibold))
-                            .frame(width: 30, height: 30)
+                            .font(.callout)
+                            .frame(width: 44, height: 44)
                     }
                     .accessibilityLabel("New suggestion")
                     .glassEffectIfAvailable(cornerRadius: 15)
@@ -184,7 +184,8 @@ struct SideQuestItemRow: View {
                 }) {
                     Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
                         .foregroundColor(isCompleted ? quest.category?.color ?? Theme.titleDenim : Theme.titleDenim.opacity(0.5))
-                        .font(.system(size: 18))
+                        .font(.body)
+                        .frame(minWidth: 44, minHeight: 44)
                 }
                 .accessibilityLabel(isCompleted ? "Mark quest incomplete" : "Mark quest complete")
 
@@ -199,7 +200,8 @@ struct SideQuestItemRow: View {
                 Button(action: onDelete) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(Theme.titleDenim.opacity(0.5))
-                        .font(.system(size: 16))
+                        .font(.callout)
+                        .frame(minWidth: 44, minHeight: 44)
                 }
                 .accessibilityLabel("Delete quest")
             }

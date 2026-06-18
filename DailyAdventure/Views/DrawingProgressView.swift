@@ -265,11 +265,11 @@ struct CategoryBadge: View {
             ZStack {
                 Circle()
                     .fill(color.opacity(0.25))
-                    .frame(width: 22, height: 22)
+                    .frame(width: 28, height: 28)
 
                 Image(systemName: icon)
                     .foregroundColor(color)
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.caption2)
             }
             .glassEffectCircleIfAvailable()
 

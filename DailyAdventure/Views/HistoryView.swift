@@ -34,7 +34,7 @@ struct HistoryView: View {
                     VStack(spacing: Theme.Spacing.small) {
                         HStack(spacing: Theme.Spacing.medium) {
                             Image(systemName: "book.fill")
-                                .font(.system(size: 26))
+                                .font(.title2)
                                 .foregroundColor(Theme.titleDenim)
                                 .frame(width: 56, height: 56)
                                 .background(Theme.titleDenim.opacity(0.1))
@@ -49,7 +49,7 @@ struct HistoryView: View {
 
                         HStack(spacing: 6) {
                             Image(systemName: "shield.fill")
-                                .font(.system(size: 13))
+                                .font(.footnote)
                                 .foregroundColor(Theme.titleDenim.opacity(0.7))
                             Text("\(viewModel.totalDaysAdventured) days of adventure")
                                 .font(.footnote)
@@ -69,6 +69,7 @@ struct HistoryView: View {
                         VStack(spacing: Theme.Spacing.medium) {
                             Text("📜")
                                 .font(.system(size: 48))
+                                .accessibilityHidden(true)
 
                             Text("No adventures yet!")
                                 .font(.headline)
@@ -142,7 +143,7 @@ struct AdventureHistoryRow: View {
 
     var completionColor: Color {
         switch adventure.completionLevel {
-        case .complete: return Color(hex: "F5C518") // dourado
+        case .complete: return Theme.goldComplete
         case .partial:  return Theme.workBlue
         case .empty:    return Theme.titleDenim.opacity(0.3)
         }
@@ -163,7 +164,7 @@ struct AdventureHistoryRow: View {
                         case .complete:
                             Image(systemName: "star.fill")
                                 .foregroundColor(completionColor)
-                                .font(.system(size: 18, weight: .bold))
+                                .font(.body)
                         case .partial:
                             Text("\(Int(adventure.completionPercentage * 100))%")
                                 .font(.caption2)
@@ -172,7 +173,7 @@ struct AdventureHistoryRow: View {
                         case .empty:
                             Image(systemName: "minus")
                                 .foregroundColor(Theme.titleDenim.opacity(0.3))
-                                .font(.system(size: 14))
+                                .font(.caption)
                         }
                     }
                     .glassEffectCircleIfAvailable()
@@ -202,13 +203,13 @@ struct AdventureHistoryRow: View {
                     // Feedback badge
                     if adventure.feedback != .none {
                         Image(systemName: adventure.feedback == .positive ? "hand.thumbsup.fill" : adventure.feedback == .negative ? "hand.thumbsdown.fill" : "minus.circle.fill")
-                            .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : adventure.feedback == .negative ? Theme.healthRose : Color(hex: "F59E0B"))
-                            .font(.system(size: 16))
+                            .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : adventure.feedback == .negative ? Theme.healthRose : Theme.neutralOrange)
+                            .font(.callout)
                     }
 
                     Image(systemName: isSelected ? "chevron.up" : "chevron.down")
                         .foregroundColor(Theme.titleDenim.opacity(0.5))
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.caption)
                 }
                 .padding(Theme.Spacing.medium)
             }
@@ -228,7 +229,7 @@ struct AdventureHistoryRow: View {
                                 HStack(spacing: Theme.Spacing.small) {
                                     Image(systemName: "star.fill")
                                         .foregroundColor(Theme.titleDenim)
-                                        .font(.system(size: 12))
+                                        .font(.caption2)
                                         .frame(width: 20)
 
                                     Text(adventure.mainQuest)
@@ -240,7 +241,7 @@ struct AdventureHistoryRow: View {
 
                                     Image(systemName: mainCompleted ? "checkmark.circle.fill" : "xmark.circle.fill")
                                         .foregroundColor(mainCompleted ? Theme.healthColor : Theme.titleDenim.opacity(0.3))
-                                        .font(.system(size: 14))
+                                        .font(.caption)
                                 }
                             }
 
@@ -261,7 +262,7 @@ struct AdventureHistoryRow: View {
                                 HStack(spacing: Theme.Spacing.small) {
                                     Image(systemName: quest.category?.icon ?? "diamond.fill")
                                         .foregroundColor(quest.category?.color ?? Theme.titleDenim)
-                                        .font(.system(size: 12))
+                                        .font(.caption2)
                                         .frame(width: 20)
 
                                     Text(quest.title)
@@ -272,7 +273,7 @@ struct AdventureHistoryRow: View {
 
                                     Image(systemName: completed ? "checkmark.circle.fill" : "xmark.circle.fill")
                                         .foregroundColor(completed ? Theme.healthColor : Theme.titleDenim.opacity(0.3))
-                                        .font(.system(size: 14))
+                                        .font(.caption)
                                 }
                             }
                         }
@@ -304,7 +305,7 @@ struct AdventureHistoryRow: View {
                             }) {
                                 VStack(spacing: 4) {
                                     Image(systemName: "hand.thumbsup.fill")
-                                        .font(.system(size: 26))
+                                        .font(.title2)
                                         .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : Theme.titleDenim.opacity(0.35))
                                         .scaleEffect(adventure.feedback == .positive ? 1.2 : 1.0)
 
@@ -327,16 +328,16 @@ struct AdventureHistoryRow: View {
                             }) {
                                 VStack(spacing: 4) {
                                     Image(systemName: "minus.circle.fill")
-                                        .font(.system(size: 26))
-                                        .foregroundColor(adventure.feedback == .neutral ? Color(hex: "F59E0B") : Theme.titleDenim.opacity(0.35))
+                                        .font(.title2)
+                                        .foregroundColor(adventure.feedback == .neutral ? Theme.neutralOrange : Theme.titleDenim.opacity(0.35))
                                         .scaleEffect(adventure.feedback == .neutral ? 1.2 : 1.0)
 
                                     Text("So-so")
                                         .font(.caption2)
-                                        .foregroundColor(adventure.feedback == .neutral ? Color(hex: "F59E0B") : Theme.titleDenim.opacity(0.5))
+                                        .foregroundColor(adventure.feedback == .neutral ? Theme.neutralOrange : Theme.titleDenim.opacity(0.5))
                                 }
                                 .padding(Theme.Spacing.medium)
-                                .background(adventure.feedback == .neutral ? Color(hex: "F59E0B").opacity(0.15) : Color.clear)
+                                .background(adventure.feedback == .neutral ? Theme.neutralOrange.opacity(0.15) : Color.clear)
                                 .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
                                 .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
                             }
@@ -350,7 +351,7 @@ struct AdventureHistoryRow: View {
                             }) {
                                 VStack(spacing: 4) {
                                     Image(systemName: "hand.thumbsdown.fill")
-                                        .font(.system(size: 26))
+                                        .font(.title2)
                                         .foregroundColor(adventure.feedback == .negative ? Theme.healthRose : Theme.titleDenim.opacity(0.35))
                                         .scaleEffect(adventure.feedback == .negative ? 1.2 : 1.0)
 

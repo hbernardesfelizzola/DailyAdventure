@@ -60,9 +60,9 @@ struct ContentView: View {
                                let temp = weatherProvider.temperatureString {
                                 HStack(spacing: 4) {
                                     Image(systemName: symbol)
-                                        .font(.system(size: 13))
+                                        .font(.caption)
                                     Text(temp)
-                                        .font(.system(size: 13, weight: .regular))
+                                        .font(.caption)
                                 }
                                 .foregroundColor(Theme.titleDenim.opacity(0.8))
                                 .padding(.horizontal, 10)
@@ -137,7 +137,8 @@ struct ContentView: View {
                                         }) {
                                             Image(systemName: viewModel.isMainQuestCompleted() ? "checkmark.circle.fill" : "circle")
                                                 .foregroundColor(viewModel.isMainQuestCompleted() ? Theme.titleDenim : Theme.titleDenim.opacity(0.5))
-                                                .font(.system(size: 18))
+                                                .font(.body)
+                                                .frame(minWidth: 44, minHeight: 44)
                                         }
                                         .accessibilityLabel(viewModel.isMainQuestCompleted() ? "Mark main quest incomplete" : "Mark main quest complete")
 
@@ -161,7 +162,8 @@ struct ContentView: View {
                                         }) {
                                             Image(systemName: "xmark.circle.fill")
                                                 .foregroundColor(Theme.titleDenim.opacity(0.6))
-                                                .font(.system(size: 16))
+                                                .font(.callout)
+                                                .frame(minWidth: 44, minHeight: 44)
                                         }
                                         .accessibilityLabel("Remove main quest")
                                     }

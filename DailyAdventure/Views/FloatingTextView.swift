@@ -16,7 +16,7 @@ struct FloatingTextView: View {
     
     var body: some View {
         Text(text)
-            .font(.system(size: 14, weight: .bold))
+            .font(.footnote.bold())
             .foregroundColor(color)
             .padding(.horizontal, Theme.Spacing.small)
             .padding(.vertical, 4)

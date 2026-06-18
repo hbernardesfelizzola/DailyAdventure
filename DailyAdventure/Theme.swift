@@ -11,6 +11,8 @@ import SwiftUI
 enum Theme {
     // MARK: - Colors
     static let backgroundVanilla = Color(hex: "FCF6B1")
+    static let goldComplete = Color(hex: "F5C518")
+    static let neutralOrange = Color(hex: "F59E0B")
     static let workBlue = Color(hex: "6874E8")
     static let healthRose = Color(hex: "DA627D")
     static let relationshipCeladon = Color(hex: "A9E5BB")

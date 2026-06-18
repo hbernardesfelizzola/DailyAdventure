@@ -54,19 +54,22 @@ struct VictoryView: View {
                 // Ícones animados
                 HStack(spacing: Theme.Spacing.medium) {
                     Image(systemName: "shield.fill")
-                        .font(.system(size: 36))
+                        .font(.title)
                         .foregroundColor(.white.opacity(0.9))
                         .rotationEffect(.degrees(isAnimating ? -15 : 15))
+                        .accessibilityHidden(true)
 
                     Image(systemName: "trophy.fill")
-                        .font(.system(size: 52))
+                        .font(.largeTitle)
                         .foregroundColor(.yellow)
                         .scaleEffect(isAnimating ? 1.1 : 0.9)
+                        .accessibilityLabel("Trophy")
 
                     Image(systemName: "shield.fill")
-                        .font(.system(size: 36))
+                        .font(.title)
                         .foregroundColor(.white.opacity(0.9))
                         .rotationEffect(.degrees(isAnimating ? 15 : -15))
+                        .accessibilityHidden(true)
                 }
                 
                 VStack(spacing: Theme.Spacing.small) {
@@ -88,7 +91,8 @@ struct VictoryView: View {
                     ForEach(0..<5) { index in
                         Image(systemName: "star.fill")
                             .foregroundColor(.yellow)
-                            .font(.system(size: 24))
+                            .font(.title3)
+                            .accessibilityHidden(true)
                             .scaleEffect(isAnimating ? 1.2 : 0.8)
                             .animation(
                                 .spring(response: 0.4, dampingFraction: 0.6)

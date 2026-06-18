@@ -19,7 +19,7 @@ struct ProgressTabView: View {
                     // MARK: - Header
                     HStack(spacing: Theme.Spacing.medium) {
                         Image(systemName: "chart.pie.fill")
-                            .font(.system(size: 26))
+                            .font(.title2)
                             .foregroundColor(Theme.titleDenim)
                             .frame(width: 56, height: 56)
                             .background(Theme.titleDenim.opacity(0.1))
@@ -51,7 +51,7 @@ struct ProgressTabView: View {
                                 Spacer()
                                 VStack(spacing: Theme.Spacing.small) {
                                     Image(systemName: "star.fill")
-                                        .font(.system(size: 30))
+                                        .font(.title2)
                                         .foregroundColor(Theme.titleDenim.opacity(0.3))
                                     Text("No quests set for today yet")
                                         .font(.subheadline)
@@ -82,7 +82,7 @@ struct ProgressTabView: View {
 
                         // Legenda
                         HStack(spacing: Theme.Spacing.medium) {
-                            LegendItem(color: Color(hex: "F5C518"), label: "Complete")
+                            LegendItem(color: Theme.goldComplete, label: "Complete")
                             LegendItem(color: Theme.workBlue, label: "Partial")
                             LegendItem(color: Theme.titleDenim.opacity(0.2), label: "Empty")
                         }
@@ -119,7 +119,7 @@ private struct DayCell: View {
 
     private var bgColor: Color {
         switch level {
-        case .complete: return Color(hex: "F5C518")
+        case .complete: return Theme.goldComplete
         case .partial:  return dominantCategory?.color ?? Theme.workBlue
         case .empty:    return Theme.titleDenim.opacity(0.15)
         }
@@ -143,7 +143,7 @@ private struct DayCell: View {
                 if let icon {
                     Image(systemName: icon)
                         .foregroundColor(bgColor)
-                        .font(.system(size: level == .complete ? 16 : 10))
+                        .font(level == .complete ? .caption : .caption2)
                 }
             }
             .glassEffectIfAvailable(cornerRadius: 8)
@@ -187,14 +187,14 @@ struct MissingQuestRow: View {
             ZStack {
                 Circle()
                     .fill(color.opacity(0.2))
-                    .frame(width: 32, height: 32)
+                    .frame(width: 44, height: 44)
                 Image(systemName: icon)
                     .foregroundColor(color)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.caption)
             }
             .glassEffectCircleIfAvailable()
             Text(message)
-                .font(.system(size: 13, weight: .regular))
+                .font(.footnote)
                 .foregroundColor(Theme.titleDenim.opacity(0.8))
             Spacer()
         }
@@ -301,10 +301,10 @@ private struct CategoryStatRow: View {
             ZStack {
                 Circle()
                     .fill(stat.category.color.opacity(0.2))
-                    .frame(width: 32, height: 32)
+                    .frame(width: 44, height: 44)
                 Image(systemName: stat.category.icon)
                     .foregroundColor(stat.category.color)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.caption)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -354,7 +354,7 @@ private struct InsightChip: View {
         HStack(spacing: Theme.Spacing.small) {
             Image(systemName: systemImage)
                 .foregroundColor(color)
-                .font(.system(size: 13))
+                .font(.footnote)
             Text(text)
                 .font(.footnote)
                 .foregroundColor(Theme.titleDenim.opacity(0.8))

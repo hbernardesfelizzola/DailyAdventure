@@ -81,7 +81,8 @@ struct SettingsView: View {
                     VStack(spacing: Theme.Spacing.small) {
                         HStack(spacing: Theme.Spacing.medium) {
                             Text("⚙️")
-                                .font(.system(size: 48))
+                                .font(.largeTitle)
+                                .accessibilityHidden(true)
                                 .padding(Theme.Spacing.small)
                                 .background(Theme.titleDenim.opacity(0.1))
                                 .clipShape(Circle())
@@ -236,11 +237,11 @@ struct SettingsView: View {
                                 ZStack {
                                     Circle()
                                         .fill(Theme.titleDenim.opacity(0.3))
-                                        .frame(width: 36, height: 36)
+                                        .frame(width: 44, height: 44)
 
                                     Image(systemName: "arrow.counterclockwise")
                                         .foregroundColor(Theme.titleDenim)
-                                        .font(.system(size: 14, weight: .semibold))
+                                        .font(.callout)
                                 }
                                 .glassEffectCircleIfAvailable()
 
@@ -259,13 +260,14 @@ struct SettingsView: View {
 
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(Theme.titleDenim.opacity(0.5))
-                                    .font(.system(size: 12))
+                                    .font(.caption)
                             }
                             .padding(Theme.Spacing.small)
                             .background(Theme.titleDenim.opacity(0.05))
                             .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
                             .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
                         }
+                        .accessibilityLabel("View Onboarding Again")
                     }
                     .padding(Theme.Spacing.medium)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
@@ -319,11 +321,11 @@ struct SettingsToggleRow: View {
             ZStack {
                 Circle()
                     .fill(color.opacity(0.3))
-                    .frame(width: 36, height: 36)
+                    .frame(width: 44, height: 44)
 
                 Image(systemName: icon)
                     .foregroundColor(color)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.callout)
             }
             .glassEffectCircleIfAvailable()
 
@@ -362,11 +364,11 @@ struct SettingsInfoRow: View {
             ZStack {
                 Circle()
                     .fill(color.opacity(0.3))
-                    .frame(width: 36, height: 36)
+                    .frame(width: 44, height: 44)
 
                 Image(systemName: icon)
                     .foregroundColor(color)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.callout)
             }
             .glassEffectCircleIfAvailable()
 
