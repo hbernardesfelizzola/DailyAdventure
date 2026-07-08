@@ -364,5 +364,5 @@ private struct InsightChip: View {
 }
 
 #Preview {
-    ProgressTabView(viewModel: QuestViewModel())
+    ProgressTabView(viewModel: QuestViewModel.preview)
 }

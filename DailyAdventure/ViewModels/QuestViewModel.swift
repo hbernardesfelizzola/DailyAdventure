@@ -7,6 +7,7 @@
 
 
 import SwiftUI
+import SwiftData
 import WidgetKit
 
 @Observable
@@ -14,128 +15,122 @@ import WidgetKit
 class QuestViewModel {
     var todayAdventure: DailyAdventure
     var history: [DailyAdventure] = []
-    private let storage = StorageService.shared
-    private let dayBoundary = AdventureDayBoundary(calendar: .current)
+    private let context: ModelContext
     private let streakCalculator = StreakCalculator(calendar: .current)
-    
-    init() {
-        self.history = storage.loadHistory()
+
+    init(context: ModelContext) {
+        self.context = context
+        LegacyDataMigrator.migrateIfNeeded(context: context)
 
         let now = Date()
+        let todayStart = Calendar.current.startOfDay(for: now)
 
-        guard let loaded = storage.loadTodayAdventure() else {
-            self.todayAdventure = DailyAdventure()
-            return
+        if let existing = Self.fetchAdventure(calendarDay: todayStart, context: context) {
+            self.todayAdventure = existing
+        } else {
+            if let stale = Self.fetchMostRecent(context: context), !stale.shouldArchiveToAdventureLog {
+                context.delete(stale)
+            }
+            let fresh = DailyAdventure(date: now)
+            context.insert(fresh)
+            try? context.save()
+            self.todayAdventure = fresh
         }
 
-        if dayBoundary.isSameCalendarDayAsToday(loaded.date, referenceNow: now) {
-            self.todayAdventure = loaded
-            return
-        }
-
-        self.todayAdventure = DailyAdventure()
-
-        if loaded.shouldArchiveToAdventureLog {
-            history = dayBoundary.historyReplacingCalendarDay(existingHistory: history, archivedDay: loaded)
-            storage.saveHistory(history)
-        }
-
-        storage.saveTodayAdventure(todayAdventure)
+        self.history = Self.fetchHistory(context: context, excludingCalendarDay: self.todayAdventure.calendarDay)
     }
-    
+
     // MARK: - Reset
     func checkAndResetIfNeeded() {
         let now = Date()
+        let todayStart = Calendar.current.startOfDay(for: now)
 
-        // Reload from storage to pick up changes made by the widget AppIntent
-        if let fresh = storage.loadTodayAdventure(),
-           dayBoundary.isSameCalendarDayAsToday(fresh.date, referenceNow: now) {
+        // Recarrega do armazenamento para pegar mudanças feitas pelo widget (hoje é um no-op, já que não há
+        // App Intent de escrita no widget, mas mantido por paridade com o comportamento anterior).
+        if let fresh = Self.fetchAdventure(calendarDay: todayStart, context: context) {
             todayAdventure = fresh
             return
         }
 
-        let previous = todayAdventure
-
-        if previous.shouldArchiveToAdventureLog {
-            history = dayBoundary.historyReplacingCalendarDay(existingHistory: history, archivedDay: previous)
-            storage.saveHistory(history)
+        if !todayAdventure.shouldArchiveToAdventureLog {
+            context.delete(todayAdventure)
         }
 
-        todayAdventure = DailyAdventure()
-        storage.saveTodayAdventure(todayAdventure)
+        let fresh = DailyAdventure(date: now)
+        context.insert(fresh)
+        try? context.save()
+        todayAdventure = fresh
+        history = Self.fetchHistory(context: context, excludingCalendarDay: fresh.calendarDay)
     }
-    
+
     private func save() {
-        storage.saveTodayAdventure(todayAdventure)
+        try? context.save()
         WidgetCenter.shared.reloadAllTimelines()
     }
-    
+
     func updateMainQuest(_ text: String) {
         todayAdventure.mainQuest = text
         save()
     }
-    
+
     // MARK: - Side Quests
     func addSideQuest(category: QuestCategory, title: String) {
         if !title.isEmpty {
             let newQuest = Quest(title: title, category: category)
-            todayAdventure.sideQuests.append(newQuest)
+            context.insert(newQuest)
+            todayAdventure.quests?.append(newQuest)
             save()
         }
     }
-    
+
     func deleteSideQuest(_ quest: Quest) {
-        todayAdventure.sideQuests.removeAll { $0.id == quest.id }
-        todayAdventure.completedQuests.removeAll { $0.id == quest.id }
+        todayAdventure.quests?.removeAll { $0.id == quest.id }
+        context.delete(quest)
         save()
     }
-    
+
     func getSideQuests(for category: QuestCategory) -> [Quest] {
         todayAdventure.sideQuests.filter { $0.category == category }
     }
-    
+
     // MARK: - Completed Quests
     func completeMainQuest() {
-        if !todayAdventure.mainQuest.isEmpty {
-            if !todayAdventure.completedQuests.contains(where: { $0.isMainQuest }) {
-                let mainQuestObj = Quest(title: todayAdventure.mainQuest, category: nil, isMainQuest: true)
-                todayAdventure.completedQuests.append(mainQuestObj)
-                save()
-            }
-        }
+        guard !todayAdventure.mainQuest.isEmpty, !todayAdventure.isMainQuestCompleted else { return }
+        todayAdventure.isMainQuestCompleted = true
+        todayAdventure.mainQuestCompletedAt = Date()
+        save()
     }
-    
+
     func toggleMainQuest() {
-        if isMainQuestCompleted() {
-            todayAdventure.completedQuests.removeAll { $0.isMainQuest }
+        if todayAdventure.isMainQuestCompleted {
+            todayAdventure.isMainQuestCompleted = false
+            todayAdventure.mainQuestCompletedAt = nil
+            save()
         } else {
             completeMainQuest()
         }
-        save()
     }
-    
+
     func completeSideQuest(_ quest: Quest) {
-        if todayAdventure.completedQuests.contains(where: { $0.id == quest.id }) {
-            todayAdventure.completedQuests.removeAll { $0.id == quest.id }
-        } else {
-            todayAdventure.completedQuests.append(quest)
-        }
+        quest.isCompleted.toggle()
+        quest.completedAt = quest.isCompleted ? Date() : nil
         save()
     }
-    
+
     func uncompleteQuest(_ quest: Quest) {
-        todayAdventure.completedQuests.removeAll { $0.id == quest.id }
+        quest.isCompleted = false
+        quest.completedAt = nil
         save()
     }
-    
+
     func isQuestCompleted(_ quest: Quest) -> Bool {
-        todayAdventure.completedQuests.contains { $0.id == quest.id }
+        quest.isCompleted
     }
-    
+
     func isMainQuestCompleted() -> Bool {
-        todayAdventure.completedQuests.contains { $0.isMainQuest }
+        todayAdventure.isMainQuestCompleted
     }
-    
+
     // MARK: - Analytics
 
     /// Dias consecutivos com ≥1 quest completada, contando de hoje para trás.
@@ -175,7 +170,7 @@ class QuestViewModel {
 
     private func dominantCompletedCategory(in adventure: DailyAdventure) -> QuestCategory? {
         var counts: [QuestCategory: Int] = [:]
-        for quest in adventure.completedQuests {
+        for quest in adventure.sideQuests where quest.isCompleted {
             guard let cat = quest.category else { continue }
             counts[cat, default: 0] += 1
         }
@@ -192,7 +187,7 @@ class QuestViewModel {
             for quest in day.sideQuests {
                 guard let cat = quest.category else { continue }
                 counts[cat]?.added += 1
-                if day.completedQuests.contains(where: { $0.id == quest.id }) {
+                if quest.isCompleted {
                     counts[cat]?.completed += 1
                 }
             }
@@ -213,10 +208,42 @@ class QuestViewModel {
             todayAdventure.feedback = feedback
             save()
         } else {
-            if let index = history.firstIndex(where: { $0.id == adventure.id }) {
-                history[index].feedback = feedback
-                storage.saveHistory(history)
-            }
+            adventure.feedback = feedback
+            try? context.save()
         }
+    }
+
+    // MARK: - Fetch helpers
+
+    private static func fetchAdventure(calendarDay: Date, context: ModelContext) -> DailyAdventure? {
+        let descriptor = FetchDescriptor<DailyAdventure>(
+            predicate: #Predicate { $0.calendarDay == calendarDay }
+        )
+        return try? context.fetch(descriptor).first
+    }
+
+    private static func fetchMostRecent(context: ModelContext) -> DailyAdventure? {
+        var descriptor = FetchDescriptor<DailyAdventure>(sortBy: [SortDescriptor(\.date, order: .reverse)])
+        descriptor.fetchLimit = 1
+        return try? context.fetch(descriptor).first
+    }
+
+    private static func fetchHistory(context: ModelContext, excludingCalendarDay: Date) -> [DailyAdventure] {
+        let descriptor = FetchDescriptor<DailyAdventure>(
+            predicate: #Predicate { $0.calendarDay != excludingCalendarDay },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        return (try? context.fetch(descriptor)) ?? []
+    }
+}
+
+extension QuestViewModel {
+    /// Factory for SwiftUI `#Preview` blocks — backed by an in-memory store, never used in production.
+    static var preview: QuestViewModel {
+        let container = try! ModelContainer(
+            for: DailyAdventure.self, Quest.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        return QuestViewModel(context: ModelContext(container))
     }
 }

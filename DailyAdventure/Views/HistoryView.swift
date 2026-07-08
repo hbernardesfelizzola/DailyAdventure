@@ -379,5 +379,5 @@ struct AdventureHistoryRow: View {
 
 
 #Preview {
-    HistoryView(viewModel: QuestViewModel())
+    HistoryView(viewModel: QuestViewModel.preview)
 }

@@ -89,6 +89,6 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(viewModel: QuestViewModel(), notificationRouter: NotificationTapRouter(), weatherProvider: WeatherProvider())
+    MainTabView(viewModel: QuestViewModel.preview, notificationRouter: NotificationTapRouter(), weatherProvider: WeatherProvider())
 }
 

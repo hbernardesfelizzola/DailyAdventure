@@ -83,7 +83,8 @@
 				Models/DrawingType.swift,
 				Models/Quest.swift,
 				Models/QuestCategory.swift,
-				Services/StorageService.swift,
+				Services/LegacyDataMigrator.swift,
+				Services/PersistenceController.swift,
 				Theme.swift,
 			);
 			target = 2D5A74862FC60D85002D3EE4 /* DailyAdventureWidgetExtension */;

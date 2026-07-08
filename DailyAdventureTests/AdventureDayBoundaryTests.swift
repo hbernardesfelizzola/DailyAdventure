@@ -65,8 +65,10 @@ import Testing
         let withMain = DailyAdventure(mainQuest: "Run")
         #expect(withMain.shouldArchiveToAdventureLog)
 
-        var withCompletion = DailyAdventure()
-        withCompletion.completedQuests.append(Quest(title: "Hydrate"))
+        let withCompletion = DailyAdventure()
+        let hydrate = Quest(title: "Hydrate")
+        withCompletion.quests = [hydrate]
+        hydrate.isCompleted = true
         #expect(withCompletion.shouldArchiveToAdventureLog)
 
         var withFeedback = DailyAdventure()

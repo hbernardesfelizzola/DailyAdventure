@@ -1,32 +1,27 @@
 import Foundation
+import SwiftData
 
-/// Populates UserDefaults with 30 days of realistic fake history.
+/// Populates the SwiftData store with 30 days of realistic fake history.
 /// Triggered by the `--mock-data` launch argument (development only).
 @MainActor
 struct MockDataSeeder {
 
-    static func seed() {
+    static func seed(context: ModelContext) {
         let calendar = Calendar.current
         let now = Date()
 
-        var history: [DailyAdventure] = []
         for daysAgo in 1...30 {
             guard let date = calendar.date(byAdding: .day, value: -daysAgo, to: now) else { continue }
             let adventure = makeAdventure(date: date, index: daysAgo)
             if adventure.shouldArchiveToAdventureLog {
-                history.append(adventure)
+                context.insert(adventure)
             }
         }
 
-        let today = makeTodayAdventure(date: now)
+        context.insert(makeTodayAdventure(date: now))
+        try? context.save()
 
-        let defaults = UserDefaults(suiteName: StorageService.appGroupID) ?? .standard
-        if let historyData = try? JSONEncoder().encode(history) {
-            defaults.set(historyData, forKey: "adventureHistory")
-        }
-        if let todayData = try? JSONEncoder().encode(today) {
-            defaults.set(todayData, forKey: "todayAdventure")
-        }
+        let defaults = UserDefaults(suiteName: PersistenceController.appGroupID) ?? .standard
         defaults.set(true, forKey: "hasSeenOnboarding")
     }
 

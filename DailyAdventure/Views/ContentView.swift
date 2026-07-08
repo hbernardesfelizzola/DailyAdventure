@@ -283,22 +283,22 @@ struct ContentView: View {
 }
 
 #Preview("Light Mode") {
-    ContentView(viewModel: QuestViewModel(), weatherProvider: WeatherProvider())
+    ContentView(viewModel: QuestViewModel.preview, weatherProvider: WeatherProvider())
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark Mode") {
-    ContentView(viewModel: QuestViewModel(), weatherProvider: WeatherProvider())
+    ContentView(viewModel: QuestViewModel.preview, weatherProvider: WeatherProvider())
         .preferredColorScheme(.dark)
 }
 
 #Preview("Light Mode") {
-    ContentView(viewModel: QuestViewModel(), weatherProvider: WeatherProvider())
+    ContentView(viewModel: QuestViewModel.preview, weatherProvider: WeatherProvider())
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark Mode") {
-    ContentView(viewModel: QuestViewModel(), weatherProvider: WeatherProvider())
+    ContentView(viewModel: QuestViewModel.preview, weatherProvider: WeatherProvider())
         .preferredColorScheme(.dark)
 }
 

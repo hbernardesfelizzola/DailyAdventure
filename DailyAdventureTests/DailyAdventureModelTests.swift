@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import SwiftData
 import Testing
 @testable import DailyAdventure
 
@@ -32,16 +33,26 @@ import Testing
         #expect(adventure.completionPercentage == 0.5)
     }
 
-    @Test @MainActor func codableRoundTripKeepsStableIdentityFields() throws {
+    @Test @MainActor func identitySurvivesPersistenceRoundTrip() throws {
+        let container = try ModelContainer(
+            for: DailyAdventure.self, Quest.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let context = ModelContext(container)
+
         let adventure = DailyAdventure(
             mainQuest: "Rest",
             sideQuests: [Quest(title: "Walk")],
             completedQuests: []
         )
-        let data = try JSONEncoder().encode(adventure)
-        let decoded = try JSONDecoder().decode(DailyAdventure.self, from: data)
-        #expect(decoded.id == adventure.id)
-        #expect(decoded.mainQuest == "Rest")
-        #expect(decoded.sideQuests.count == 1)
+        let id = adventure.id
+        context.insert(adventure)
+        try context.save()
+
+        let descriptor = FetchDescriptor<DailyAdventure>(predicate: #Predicate { $0.id == id })
+        let fetched = try context.fetch(descriptor)
+        #expect(fetched.count == 1)
+        #expect(fetched.first?.mainQuest == "Rest")
+        #expect(fetched.first?.sideQuests.count == 1)
     }
 }

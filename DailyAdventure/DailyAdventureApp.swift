@@ -6,21 +6,25 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct DailyAdventureApp: App {
     private static let isUITesting = ProcessInfo.processInfo.arguments.contains("--ui-testing")
 
+    @State private var viewModel: QuestViewModel
+
     init() {
         if Self.isUITesting {
             UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
         }
+        let context = ModelContext(PersistenceController.shared)
         if ProcessInfo.processInfo.arguments.contains("--mock-data") {
-            MockDataSeeder.seed()
+            MockDataSeeder.seed(context: context)
         }
+        _viewModel = State(initialValue: QuestViewModel(context: context))
     }
 
-    @State private var viewModel = QuestViewModel()
     @State private var notificationRouter = NotificationTapRouter()
     @State private var weatherProvider = WeatherProvider()
     @State private var isLoading = !DailyAdventureApp.isUITesting
@@ -68,6 +72,7 @@ struct DailyAdventureApp: App {
                 }
             }
         }
+        .modelContainer(PersistenceController.shared)
     }
 }
 

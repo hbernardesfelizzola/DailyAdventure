@@ -5,6 +5,7 @@
 
 import WidgetKit
 import SwiftUI
+import SwiftData
 
 // MARK: - Week day (usado pelo widget semanal grande)
 
@@ -87,9 +88,20 @@ struct DailyAdventureProvider: TimelineProvider {
     }
 
     private func loadEntry() -> DailyAdventureEntry {
-        let storage = StorageService()
-        let adventure = storage.loadTodayAdventure() ?? DailyAdventure()
-        let history = storage.loadHistory()
+        let context = ModelContext(PersistenceController.shared)
+        let todayStart = Calendar.current.startOfDay(for: Date())
+
+        let todayDescriptor = FetchDescriptor<DailyAdventure>(
+            predicate: #Predicate { $0.calendarDay == todayStart }
+        )
+        let adventure = (try? context.fetch(todayDescriptor))?.first ?? DailyAdventure()
+
+        let historyDescriptor = FetchDescriptor<DailyAdventure>(
+            predicate: #Predicate { $0.calendarDay != todayStart },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        let history = (try? context.fetch(historyDescriptor)) ?? []
+
         return DailyAdventureEntry(
             date: Date(),
             adventure: adventure,

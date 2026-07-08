@@ -7,13 +7,20 @@
 
 
 import Foundation
+import SwiftData
 
-struct Quest: Identifiable, Codable {
-    let id: UUID
-    var title: String
+@Model
+final class Quest {
+    var id: UUID = UUID()
+    var title: String = ""
     var category: QuestCategory?  // Opcional para main quest
     var isMainQuest: Bool = false
-    
+    var isCompleted: Bool = false
+    var completedAt: Date?
+    var createdAt: Date = Date()
+
+    var day: DailyAdventure?
+
     init(id: UUID = UUID(), title: String, category: QuestCategory? = nil, isMainQuest: Bool = false) {
         self.id = id
         self.title = title
