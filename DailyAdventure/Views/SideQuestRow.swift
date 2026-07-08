@@ -142,21 +142,29 @@ struct SideQuestRow: View {
             }
         }
         .onAppear {
-            suggestion = SuggestionsService.shared.getSuggestion(for: category)
+            suggestion = SuggestionsService.shared.getSuggestion(for: category, excluding: existingTitles)
         }
     }
     
     private func submitQuest() {
         if !newQuestText.isEmpty {
-            viewModel.addSideQuest(category: category, title: newQuestText)
+            let addedTitle = newQuestText
+            viewModel.addSideQuest(category: category, title: addedTitle)
             newQuestText = ""
-            suggestion = SuggestionsService.shared.getSuggestion(for: category)
+            suggestion = SuggestionsService.shared.getSuggestion(
+                for: category,
+                excluding: existingTitles + [addedTitle]
+            )
             isFocused = false
         }
     }
-    
+
     private func generateNewSuggestion() {
-        suggestion = SuggestionsService.shared.getSuggestion(for: category)
+        suggestion = SuggestionsService.shared.getSuggestion(for: category, excluding: existingTitles)
+    }
+
+    private var existingTitles: [String] {
+        quests.map(\.title)
     }
 }
 
@@ -228,7 +236,7 @@ struct SideQuestItemRow: View {
             Quest(title: "Go to office", category: .work),
             Quest(title: "Code review", category: .work)
         ],
-        viewModel: QuestViewModel()
+        viewModel: QuestViewModel.preview
     )
     .padding()
     .background(Theme.background)

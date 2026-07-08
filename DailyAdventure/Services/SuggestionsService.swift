@@ -92,19 +92,38 @@ class SuggestionsService {
         "Write a letter to someone special"
     ]
     
-    func getSuggestion(for category: QuestCategory) -> String {
-        let suggestions: [String]
+    // Bag por categoria: baralho embaralhado que esvazia antes de repetir uma sugestão.
+    private var bags: [QuestCategory: [String]] = [:]
 
-        switch category {
-        case .work:
-            suggestions = workSuggestions
-        case .health:
-            suggestions = healthSuggestions
-        case .relationship:
-            suggestions = relationshipSuggestions
+    func getSuggestion(for category: QuestCategory, excluding existingTitles: [String] = []) -> String {
+        let excluded = Set(existingTitles.map { $0.trimmingCharacters(in: .whitespaces).lowercased() })
+        let pool = suggestions(for: category)
+
+        var bag = bags[category] ?? []
+        if bag.isEmpty {
+            bag = pool.shuffled()
         }
 
-        let key = suggestions.randomElement() ?? "Add a quest"
-        return NSLocalizedString(key, comment: "Side quest suggestion")
+        if let index = bag.firstIndex(where: { !excluded.contains($0.lowercased()) }) {
+            let suggestion = bag.remove(at: index)
+            bags[category] = bag
+            return NSLocalizedString(suggestion, comment: "Side quest suggestion")
+        }
+
+        // Todas as sugestões restantes no bag já foram adicionadas hoje.
+        let fallback = pool.first(where: { !excluded.contains($0.lowercased()) }) ?? pool.randomElement() ?? "Add a quest"
+        bags[category] = []
+        return NSLocalizedString(fallback, comment: "Side quest suggestion")
+    }
+
+    private func suggestions(for category: QuestCategory) -> [String] {
+        switch category {
+        case .work:
+            return workSuggestions
+        case .health:
+            return healthSuggestions
+        case .relationship:
+            return relationshipSuggestions
+        }
     }
 }
