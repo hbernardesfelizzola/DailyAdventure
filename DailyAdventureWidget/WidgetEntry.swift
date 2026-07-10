@@ -7,22 +7,11 @@ import WidgetKit
 import SwiftUI
 import SwiftData
 
-// MARK: - Week day (usado pelo widget semanal grande)
-
-struct WidgetWeekDay {
-    let date: Date
-    let level: DayCompletionLevel
-    let mainQuestTitle: String
-    let completionPercentage: Double
-}
-
 // MARK: - Timeline Entry
 
 struct DailyAdventureEntry: TimelineEntry {
     let date: Date
     let adventure: DailyAdventure
-    let streak: Int
-    let weekdays: [WidgetWeekDay]
 
     var isMainQuestCompleted: Bool {
         adventure.completedQuests.contains { $0.isMainQuest }
@@ -55,18 +44,7 @@ struct DailyAdventureEntry: TimelineEntry {
             sideQuests: [q1, q2, q3],
             completedQuests: [q1]
         )
-        let cal = Calendar.current
-        let today = Date()
-        let sampleTitles = [
-            "Morning workout", "Project deadline", "Team meeting",
-            "Read for 30 min", "Cook dinner", "", "Finish presentation"
-        ]
-        let levels: [DayCompletionLevel] = [.complete, .partial, .complete, .complete, .partial, .empty, .empty]
-        let weekdays = (0..<7).map { i -> WidgetWeekDay in
-            let d = cal.date(byAdding: .day, value: i - 6, to: today)!
-            return WidgetWeekDay(date: d, level: levels[i], mainQuestTitle: sampleTitles[i], completionPercentage: levels[i] == .complete ? 1.0 : (levels[i] == .partial ? 0.5 : 0))
-        }
-        return DailyAdventureEntry(date: today, adventure: adventure, streak: 5, weekdays: weekdays)
+        return DailyAdventureEntry(date: Date(), adventure: adventure)
     }
 }
 
@@ -96,49 +74,7 @@ struct DailyAdventureProvider: TimelineProvider {
         )
         let adventure = (try? context.fetch(todayDescriptor))?.first ?? DailyAdventure()
 
-        let historyDescriptor = FetchDescriptor<DailyAdventure>(
-            predicate: #Predicate { $0.calendarDay != todayStart },
-            sortBy: [SortDescriptor(\.date, order: .reverse)]
-        )
-        let history = (try? context.fetch(historyDescriptor)) ?? []
-
-        return DailyAdventureEntry(
-            date: Date(),
-            adventure: adventure,
-            streak: computeStreak(today: adventure, history: history),
-            weekdays: computeWeekdays(today: adventure, history: history)
-        )
-    }
-
-    private func computeStreak(today: DailyAdventure, history: [DailyAdventure]) -> Int {
-        let cal = Calendar.current
-        var streak = 0
-        var expected = Date()
-        for day in [today] + history {
-            guard cal.isDate(day.date, inSameDayAs: expected), day.completionLevel != .empty else { break }
-            streak += 1
-            expected = cal.date(byAdding: .day, value: -1, to: expected)!
-        }
-        return streak
-    }
-
-    private func computeWeekdays(today: DailyAdventure, history: [DailyAdventure]) -> [WidgetWeekDay] {
-        let cal = Calendar.current
-        let now = Date()
-        return (0..<7).map { daysAgo -> WidgetWeekDay in
-            let date = cal.date(byAdding: .day, value: -daysAgo, to: now)!
-            if cal.isDate(today.date, inSameDayAs: date) {
-                return WidgetWeekDay(date: date, level: today.completionLevel,
-                                     mainQuestTitle: today.mainQuest,
-                                     completionPercentage: today.completionPercentage)
-            }
-            if let match = history.first(where: { cal.isDate($0.date, inSameDayAs: date) }) {
-                return WidgetWeekDay(date: date, level: match.completionLevel,
-                                     mainQuestTitle: match.mainQuest,
-                                     completionPercentage: match.completionPercentage)
-            }
-            return WidgetWeekDay(date: date, level: .empty, mainQuestTitle: "", completionPercentage: 0)
-        }.reversed()
+        return DailyAdventureEntry(date: Date(), adventure: adventure)
     }
 }
 
