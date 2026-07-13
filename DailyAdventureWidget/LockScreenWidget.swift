@@ -28,11 +28,16 @@ struct LockScreenWidgetView: View {
     @Environment(\.widgetFamily) var family
 
     var body: some View {
-        switch family {
-        case .accessoryCircular:    CircularView(entry: entry)
-        case .accessoryRectangular: RectangularView(entry: entry)
-        default:                    InlineView(entry: entry)
+        Group {
+            switch family {
+            case .accessoryCircular:    CircularView(entry: entry)
+            case .accessoryRectangular: RectangularView(entry: entry)
+            default:                    InlineView(entry: entry)
+            }
         }
+        // Accessory widgets têm pouquíssimo espaço (circular tem ~76pt de diâmetro) — não deixa
+        // escalar além do tamanho padrão de Dynamic Type pra não cortar o conteúdo.
+        .dynamicTypeSize(.xSmall ... .large)
     }
 }
 
@@ -46,10 +51,10 @@ struct CircularView: View {
             AccessoryWidgetBackground()
             VStack(spacing: 1) {
                 Image(systemName: entry.adventure.completionLevel.widgetIcon)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.body.weight(.semibold))
                 if entry.totalCount > 0 {
                     Text("\(entry.completedCount)/\(entry.totalCount)")
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .font(.system(.caption2, design: .rounded).bold())
                 }
             }
         }

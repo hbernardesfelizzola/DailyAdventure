@@ -13,23 +13,17 @@ struct DailyAdventureEntry: TimelineEntry {
     let date: Date
     let adventure: DailyAdventure
 
-    var isMainQuestCompleted: Bool {
-        adventure.completedQuests.contains { $0.isMainQuest }
-    }
+    var isMainQuestCompleted: Bool { adventure.isMainQuestCompleted }
     var completedCount: Int { adventure.completedQuests.count }
     var totalCount: Int { adventure.totalQuests }
 
     /// Próxima quest incompleta para o widget de lembrete (small).
     /// Prioriza side quests (têm categoria) sobre a main quest.
     var reminderQuest: (title: String, category: QuestCategory?)? {
-        let incompleteSide = adventure.sideQuests.filter { quest in
-            !adventure.completedQuests.contains { $0.id == quest.id }
-        }
-        if let first = incompleteSide.first {
+        if let first = adventure.sideQuests.first(where: { !$0.isCompleted }) {
             return (first.title, first.category)
         }
-        if !adventure.mainQuest.isEmpty,
-           !adventure.completedQuests.contains(where: { $0.isMainQuest }) {
+        if !adventure.mainQuest.isEmpty, !adventure.isMainQuestCompleted {
             return (adventure.mainQuest, nil)
         }
         return nil
@@ -91,7 +85,7 @@ extension DayCompletionLevel {
 
     var widgetColor: Color {
         switch self {
-        case .complete: return Color(hex: "F5C518")
+        case .complete: return Theme.goldComplete
         case .partial:  return Color.orange
         case .empty:    return Color(.systemGray4)
         }

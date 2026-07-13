@@ -36,6 +36,9 @@ struct DailyQuestWidgetView: View {
             }
         }
         .containerBackground(for: .widget) { WidgetBackground() }
+        // A área do widget é fixa — acompanha Dynamic Type até um ponto, mas não deixa
+        // escalar até os tamanhos de acessibilidade (que quebrariam o layout compacto).
+        .dynamicTypeSize(.xSmall ... .xLarge)
     }
 }
 
@@ -46,18 +49,18 @@ struct SmallReminderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Header
-            HStack(spacing: 4) {
+            // Header — a cor acompanha a categoria do lembrete em vez de ficar sempre neutra
+            HStack(spacing: 6) {
                 Image(systemName: "bell.fill")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(Theme.titleDenim)
+                    .font(.caption.bold())
+                    .foregroundStyle(headerAccentColor)
                 Text("REMINDER")
-                    .font(.system(size: 9, weight: .bold, design: .rounded))
-                    .foregroundStyle(Theme.titleDenim)
+                    .font(.system(.caption, design: .rounded).bold())
+                    .foregroundStyle(headerAccentColor)
                     .tracking(1)
             }
 
-            Spacer(minLength: 10)
+            Spacer(minLength: 12)
 
             if let reminder = entry.reminderQuest {
                 reminderContent(title: reminder.title, category: reminder.category)
@@ -69,23 +72,30 @@ struct SmallReminderView: View {
 
             Spacer(minLength: 0)
         }
-        .padding(14)
+        .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .widgetURL(URL(string: "dailyadventure://today"))
     }
 
+    private var headerAccentColor: Color {
+        if let reminder = entry.reminderQuest {
+            return reminder.category?.color ?? Theme.titleDenim
+        }
+        return entry.totalCount == 0 ? Theme.titleDenim : Theme.goldComplete
+    }
+
     // Categoria encontrada: mostra ícone + nome da categoria + título da quest
     private func reminderContent(title: String, category: QuestCategory?) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack(spacing: 9) {
                 categoryCircle(icon: category?.icon ?? "star.fill",
                                color: category?.color ?? Theme.titleDenim)
                 Text(category?.rawValue ?? "Main Quest")
-                    .font(.caption.bold())
+                    .font(.caption2)
                     .foregroundStyle(category?.color ?? Theme.titleDenim)
             }
             Text(title)
-                .font(.footnote.bold())
+                .font(.subheadline.bold())
                 .foregroundStyle(Color.primary)
                 .lineLimit(3)
                 .fixedSize(horizontal: false, vertical: true)
@@ -93,21 +103,21 @@ struct SmallReminderView: View {
     }
 
     private var allDoneContent: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            categoryCircle(icon: "star.fill", color: Color(hex: "F5C518"))
+        VStack(alignment: .leading, spacing: 9) {
+            categoryCircle(icon: "star.fill", color: Theme.goldComplete)
             Text("All done\ntoday!")
-                .font(.footnote.bold())
+                .font(.subheadline.bold())
                 .foregroundStyle(Color.primary)
         }
     }
 
     private var emptyContent: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 9) {
             Image(systemName: "scroll")
-                .font(.system(size: 26))
+                .font(.title2)
                 .foregroundStyle(Theme.titleDenim.opacity(0.3))
             Text("No adventure\nset today")
-                .font(.footnote.bold())
+                .font(.subheadline.bold())
                 .foregroundStyle(Theme.titleDenim)
         }
     }
@@ -116,9 +126,9 @@ struct SmallReminderView: View {
         ZStack {
             Circle()
                 .fill(color.opacity(0.2))
-                .frame(width: 38, height: 38)
+                .frame(width: 40, height: 40)
             Image(systemName: icon)
-                .font(.system(size: 17, weight: .semibold))
+                .font(.body.weight(.semibold))
                 .foregroundStyle(color)
         }
     }
@@ -157,10 +167,12 @@ struct MediumQuestView: View {
 
             Divider().overlay(Theme.titleDenim.opacity(0.15))
 
-            if entry.adventure.mainQuest.isEmpty && entry.adventure.sideQuests.isEmpty {
+            if !entry.adventure.hasAnyQuest {
                 Spacer()
                 VStack(alignment: .leading, spacing: 5) {
-                    Image(systemName: "scroll").foregroundStyle(Theme.titleDenim.opacity(0.3))
+                    Image(systemName: "scroll")
+                        .font(.title2)
+                        .foregroundStyle(Theme.titleDenim.opacity(0.3))
                     Text("No adventure\nset for today")
                         .font(.caption.bold())
                         .foregroundStyle(Theme.titleDenim)
@@ -171,9 +183,9 @@ struct MediumQuestView: View {
                 if !entry.adventure.mainQuest.isEmpty {
                     HStack(alignment: .firstTextBaseline, spacing: 5) {
                         Image(systemName: "star.fill")
-                            .font(.system(size: 10))
+                            .font(.caption2)
                             .foregroundStyle(entry.isMainQuestCompleted
-                                ? Color(hex: "F5C518") : Theme.titleDenim.opacity(0.35))
+                                ? Theme.goldComplete : Theme.titleDenim.opacity(0.35))
                         Text(entry.adventure.mainQuest)
                             .font(.headline)
                             .foregroundStyle(entry.isMainQuestCompleted
@@ -197,10 +209,10 @@ struct MediumQuestView: View {
     }
 
     private func questRow(_ quest: Quest) -> some View {
-        let done = entry.adventure.completedQuests.contains { $0.id == quest.id }
+        let done = quest.isCompleted
         return HStack(spacing: 6) {
             Image(systemName: done ? "checkmark.circle.fill" : "circle")
-                .font(.system(size: 13))
+                .font(.footnote)
                 .foregroundStyle(done
                     ? (quest.category?.color ?? Theme.titleDenim)
                     : Theme.titleDenim.opacity(0.4))
@@ -212,7 +224,7 @@ struct MediumQuestView: View {
             Spacer(minLength: 0)
             if let cat = quest.category {
                 Image(systemName: cat.icon)
-                    .font(.system(size: 10))
+                    .font(.caption2)
                     .foregroundStyle(cat.color.opacity(0.65))
             }
         }
@@ -226,7 +238,7 @@ struct MediumQuestView: View {
             WidgetCategoryChart(adventure: entry.adventure)
                 .frame(width: 64, height: 64)
             Text(progressLabel)
-                .font(.system(size: 9, weight: .semibold))
+                .font(.system(.caption2, design: .rounded).weight(.semibold))
                 .foregroundStyle(Theme.titleDenim)
                 .multilineTextAlignment(.center)
             Spacer(minLength: 0)
@@ -259,28 +271,28 @@ struct WidgetCategoryChart: View {
             Chart {
                 SectorMark(angle: .value("Main", 1.0),          innerRadius: .ratio(0.58), angularInset: 1.5)
                     .foregroundStyle(Theme.titleDenim.opacity(
-                        opacity(for: adventure.completedQuests.contains { $0.isMainQuest })))
+                        opacity(for: adventure.isMainQuestCompleted)))
 
                 SectorMark(angle: .value("Work", workWeight),   innerRadius: .ratio(0.58), angularInset: 1.5)
                     .foregroundStyle(QuestCategory.work.color.opacity(
-                        opacity(for: adventure.completedQuests.contains { $0.category == .work })))
+                        opacity(for: adventure.sideQuests.contains { $0.category == .work && $0.isCompleted })))
 
                 SectorMark(angle: .value("Health", healthWeight), innerRadius: .ratio(0.58), angularInset: 1.5)
                     .foregroundStyle(QuestCategory.health.color.opacity(
-                        opacity(for: adventure.completedQuests.contains { $0.category == .health })))
+                        opacity(for: adventure.sideQuests.contains { $0.category == .health && $0.isCompleted })))
 
                 SectorMark(angle: .value("Rel", relWeight),     innerRadius: .ratio(0.58), angularInset: 1.5)
                     .foregroundStyle(QuestCategory.relationship.color.opacity(
-                        opacity(for: adventure.completedQuests.contains { $0.category == .relationship })))
+                        opacity(for: adventure.sideQuests.contains { $0.category == .relationship && $0.isCompleted })))
             }
             .chartLegend(.hidden)
 
             VStack(spacing: 0) {
                 Text("\(Int(adventure.completionPercentage * 100))%")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.system(.subheadline, design: .rounded).bold())
                     .foregroundStyle(Color.primary)
                 Text("done")
-                    .font(.system(size: 8, weight: .medium))
+                    .font(.system(.caption2, design: .rounded).weight(.medium))
                     .foregroundStyle(Color.primary.opacity(0.5))
             }
         }
