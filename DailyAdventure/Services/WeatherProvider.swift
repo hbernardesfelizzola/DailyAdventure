@@ -11,7 +11,7 @@ import WeatherKit
 @MainActor
 final class WeatherProvider: NSObject {
     private(set) var temperatureString: String?
-    private(set) var conditionSymbolName: String?
+    private(set) var attribution: WeatherAttribution?
 
     private let locationManager = CLLocationManager()
     private var lastFetchDate: Date?
@@ -20,7 +20,6 @@ final class WeatherProvider: NSObject {
         super.init()
         if ProcessInfo.processInfo.arguments.contains("--mock-weather") {
             temperatureString = "23°"
-            conditionSymbolName = "cloud.sun.fill"
             lastFetchDate = Date()
             return
         }
@@ -47,8 +46,12 @@ final class WeatherProvider: NSObject {
                 let temp = weather.currentWeather.temperature
                 let rounded = Measurement(value: temp.value.rounded(), unit: temp.unit)
                 temperatureString = rounded.formatted(.measurement(width: .narrow, usage: .weather))
-                conditionSymbolName = weather.currentWeather.symbolName
                 lastFetchDate = Date()
+
+                // Apple requer exibir a marca "Weather" e o link legal sempre que dados do WeatherKit aparecem.
+                if attribution == nil {
+                    attribution = try? await WeatherService.shared.attribution
+                }
             } catch {
                 // Weather is a non-critical feature — silently degrade on failure
             }

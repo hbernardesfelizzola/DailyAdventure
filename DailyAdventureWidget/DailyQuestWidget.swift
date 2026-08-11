@@ -36,8 +36,6 @@ struct DailyQuestWidgetView: View {
             }
         }
         .containerBackground(for: .widget) { WidgetBackground() }
-        // A área do widget é fixa — acompanha Dynamic Type até um ponto, mas não deixa
-        // escalar até os tamanhos de acessibilidade (que quebrariam o layout compacto).
         .dynamicTypeSize(.xSmall ... .xLarge)
     }
 }
@@ -49,7 +47,7 @@ struct SmallReminderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Header — a cor acompanha a categoria do lembrete em vez de ficar sempre neutra
+
             HStack(spacing: 6) {
                 Image(systemName: "bell.fill")
                     .font(.caption.bold())
@@ -289,7 +287,7 @@ struct WidgetCategoryChart: View {
 
             VStack(spacing: 0) {
                 Text("\(Int(adventure.completionPercentage * 100))%")
-                    .font(.system(.subheadline, design: .rounded).bold())
+                    .font(.system(.caption, design: .rounded).bold())
                     .foregroundStyle(Color.primary)
                 Text("done")
                     .font(.system(.caption2, design: .rounded).weight(.medium))

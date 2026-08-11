@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WeatherKit
 
 struct ContentView: View {
     var viewModel: QuestViewModel
@@ -56,10 +57,26 @@ struct ContentView: View {
                                 .clipShape(Capsule())
                                 .glassEffectCapsuleIfAvailable()
 
-                            if let symbol = weatherProvider.conditionSymbolName,
-                               let temp = weatherProvider.temperatureString {
+                            // A marca "Weather" + link legal precisam aparecer junto com o dado —
+                            // por isso só mostramos a temperatura quando a atribuição já carregou.
+                            if let temp = weatherProvider.temperatureString,
+                               let attribution = weatherProvider.attribution {
                                 HStack(spacing: 4) {
-                                    Image(systemName: symbol)
+                                    Link(destination: attribution.legalPageURL) {
+                                        AsyncImage(
+                                            url: colorScheme == .dark
+                                                ? attribution.combinedMarkDarkURL
+                                                : attribution.combinedMarkLightURL
+                                        ) { image in
+                                            image.resizable().scaledToFit()
+                                        } placeholder: {
+                                            Color.clear
+                                        }
+                                        .frame(height: 12)
+                                    }
+                                    .accessibilityLabel("Weather data attribution, opens legal page")
+
+                                    Text(":")
                                         .font(.caption)
                                     Text(temp)
                                         .font(.caption)
