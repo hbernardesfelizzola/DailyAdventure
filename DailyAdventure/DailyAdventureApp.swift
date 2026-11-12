@@ -26,7 +26,6 @@ struct DailyAdventureApp: App {
     }
 
     @State private var notificationRouter = NotificationTapRouter()
-    @State private var weatherProvider = WeatherProvider()
     @State private var isLoading = !DailyAdventureApp.isUITesting
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage("isDarkMode") private var isDarkMode = false
@@ -42,7 +41,7 @@ struct DailyAdventureApp: App {
                     OnboardingView()
                         .transition(.opacity)
                 } else {
-                    MainTabView(viewModel: viewModel, notificationRouter: notificationRouter, weatherProvider: weatherProvider)
+                    MainTabView(viewModel: viewModel, notificationRouter: notificationRouter)
                         .transition(.opacity)
                 }
             }
@@ -53,7 +52,6 @@ struct DailyAdventureApp: App {
                 if newPhase == .active {
                     viewModel.checkAndResetIfNeeded()
                     NotificationService.shared.syncScheduledNotificationsWithSettings()
-                    weatherProvider.fetchIfNeeded()
                 }
             }
             .onOpenURL { url in

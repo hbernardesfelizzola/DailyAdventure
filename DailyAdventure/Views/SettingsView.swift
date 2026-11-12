@@ -96,6 +96,19 @@ struct SettingsView: View {
                     }
                     .padding(.top, Theme.Spacing.large)
 
+                    // MARK: - Profile
+                    VStack(alignment: .leading, spacing: Theme.Spacing.small) {
+                        Label("Profile", systemImage: "person.fill")
+                            .font(.headline)
+                            .foregroundColor(Theme.titleDenim)
+
+                        SettingsNameRow()
+                    }
+                    .padding(Theme.Spacing.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+                    .glassEffectIfAvailable()
+                    .padding(.horizontal, Theme.Spacing.medium)
+
                     // MARK: - Appearance
                     VStack(alignment: .leading, spacing: Theme.Spacing.small) {
                         Label("Appearance", systemImage: "paintbrush.fill")
@@ -306,6 +319,59 @@ struct SettingsView: View {
         .background(Theme.titleDenim.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
         .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
+    }
+}
+
+/// Nome usado na saudação da Today. Salva ao terminar de editar (não a cada tecla).
+struct SettingsNameRow: View {
+    @AppStorage(UserProfile.nameKey) private var userName = ""
+    @State private var draft = ""
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        HStack(spacing: Theme.Spacing.medium) {
+            ZStack {
+                Circle()
+                    .fill(Theme.titleDenim.opacity(0.3))
+                    .frame(width: 44, height: 44)
+
+                Image(systemName: "person.fill")
+                    .foregroundColor(Theme.titleDenim)
+                    .font(.callout)
+            }
+            .glassEffectCircleIfAvailable()
+            .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                TextField("Your name", text: $draft)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundColor(Theme.titleDenim)
+                    .textContentType(.givenName)
+                    .textInputAutocapitalization(.words)
+                    .autocorrectionDisabled()
+                    .submitLabel(.done)
+                    .focused($isFocused)
+                    .onSubmit(save)
+
+                Text("Used to greet you on the Today tab")
+                    .font(.caption)
+                    .foregroundColor(Theme.titleDenim.opacity(0.7))
+            }
+        }
+        .padding(Theme.Spacing.small)
+        .frame(minHeight: 60)
+        .background(Theme.titleDenim.opacity(0.05))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
+        .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
+        .onAppear { draft = userName }
+        .onChange(of: isFocused) { _, focused in
+            if !focused { save() }
+        }
+    }
+
+    private func save() {
+        userName = UserProfile.sanitized(draft)
+        draft = userName
     }
 }
 
