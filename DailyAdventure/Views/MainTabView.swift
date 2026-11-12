@@ -11,7 +11,6 @@ import SwiftUI
 struct MainTabView: View {
     var viewModel: QuestViewModel
     var notificationRouter: NotificationTapRouter
-    var weatherProvider: WeatherProvider
     @State private var selectedTab = MainTab.today
 
     private let tabCount = 4
@@ -39,7 +38,7 @@ struct MainTabView: View {
 
             TabView(selection: $selectedTab) {
                 // MARK: - Today Tab (esquerda - tab inicial, mais usada)
-                ContentView(viewModel: viewModel, weatherProvider: weatherProvider)
+                ContentView(viewModel: viewModel)
                     .tabItem {
                         Label("Today", systemImage: "star.fill")
                     }
@@ -89,6 +88,6 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(viewModel: QuestViewModel.preview, notificationRouter: NotificationTapRouter(), weatherProvider: WeatherProvider())
+    MainTabView(viewModel: QuestViewModel.preview, notificationRouter: NotificationTapRouter())
 }
 
