@@ -82,6 +82,42 @@ enum Theme {
         isHighContrast ? Color(hex: "C0392B") : healthRose
     }
     
+    // MARK: - Today (redesign)
+    /// Creme mais suave que `backgroundVanilla` — base do fundo 60:30:10.
+    static var cream: Color {
+        isHighContrast ? Color(light: "FFFFFF", dark: "000000") : Color(light: "FBF6E3", dark: "011936")
+    }
+
+    /// Texto principal — mais escuro que `titleDenim` para passar 4.5:1 sobre fundo claro.
+    static var ink: Color {
+        isHighContrast ? Color(light: "000000", dark: "FFFFFF") : Color(light: "1D3550", dark: "EAF1F8")
+    }
+
+    static var inkSecondary: Color {
+        isHighContrast ? Color(light: "333333", dark: "CCCCCC") : Color(light: "5A6B7D", dark: "9FB3C6")
+    }
+
+    /// Cor de ação e destaque (botões, anel de progresso, card da aventura do dia).
+    static var accent: Color {
+        isHighContrast ? Color(light: "1A3A5C", dark: "FFFFFF") : Color(light: "2F5D85", dark: "8BB8D4")
+    }
+
+    /// Texto sobre `accent`.
+    static var onAccent: Color {
+        isHighContrast ? Color(light: "FFFFFF", dark: "000000") : Color(light: "FFFFFF", dark: "011936")
+    }
+
+    static var surfaceSecondary: Color {
+        isHighContrast ? Color(light: "E6E6E6", dark: "262626") : Color(light: "F4F1E6", dark: "133459")
+    }
+
+    static var separator: Color {
+        isHighContrast ? Color(light: "BBBBBB", dark: "555555") : Color(light: "EFEBDD", dark: "17365A")
+    }
+
+    static var goldSurface: Color { Color(light: "FFF4CC", dark: "3A3215") }
+    static var goldText: Color { Color(light: "7A5C00", dark: "F5D76E") }
+
     enum Icons {
         static let mainQuest = "star.fill"
         static let sideQuest = "diamond.fill"
@@ -109,6 +145,13 @@ extension Color {
         let blue = Double(rgb & 0xFF) / 255.0
         
         self.init(red: red, green: green, blue: blue)
+    }
+
+    /// Cor adaptativa light/dark a partir de dois hex.
+    init(light: String, dark: String) {
+        self.init(UIColor { trait in
+            trait.userInterfaceStyle == .dark ? UIColor(hex: dark) : UIColor(hex: light)
+        })
     }
 }
 
