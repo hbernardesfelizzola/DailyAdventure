@@ -104,16 +104,37 @@ class SuggestionsService {
             bag = pool.shuffled()
         }
 
-        if let index = bag.firstIndex(where: { !excluded.contains($0.lowercased()) }) {
+        // Compara pelo texto localizado — é ele que o usuário adiciona como título da quest.
+        let isAvailable: (String) -> Bool = { !excluded.contains(Self.localized($0).lowercased()) }
+
+        if let index = bag.firstIndex(where: isAvailable) {
             let suggestion = bag.remove(at: index)
             bags[category] = bag
-            return NSLocalizedString(suggestion, comment: "Side quest suggestion")
+            return Self.localized(suggestion)
         }
 
         // Todas as sugestões restantes no bag já foram adicionadas hoje.
-        let fallback = pool.first(where: { !excluded.contains($0.lowercased()) }) ?? pool.randomElement() ?? "Add a quest"
+        let fallback = pool.first(where: isAvailable) ?? pool.randomElement() ?? "Add a quest"
         bags[category] = []
-        return NSLocalizedString(fallback, comment: "Side quest suggestion")
+        return Self.localized(fallback)
+    }
+
+    /// Várias sugestões distintas de uma categoria, sem repetir títulos já existentes.
+    func getSuggestions(for category: QuestCategory, count: Int, excluding existingTitles: [String] = []) -> [String] {
+        var result: [String] = []
+        var attempts = 0
+        while result.count < count && attempts < count * 4 {
+            let suggestion = getSuggestion(for: category, excluding: existingTitles + result)
+            if !result.contains(suggestion) && !existingTitles.contains(suggestion) {
+                result.append(suggestion)
+            }
+            attempts += 1
+        }
+        return result
+    }
+
+    private static func localized(_ key: String) -> String {
+        NSLocalizedString(key, comment: "Side quest suggestion")
     }
 
     private func suggestions(for category: QuestCategory) -> [String] {
