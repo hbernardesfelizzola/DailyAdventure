@@ -7,51 +7,51 @@
 
 
 import SwiftUI
-import UserNotifications
 
 struct OnboardingView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var currentPage = 0
-    @State private var isAnimating = false
     @AppStorage(UserProfile.nameKey) private var userName = ""
     @State private var nameDraft = ""
+    @AppStorage("morningReminderEnabled") private var morningReminderEnabled = false
+    @AppStorage("eveningReminderEnabled") private var eveningReminderEnabled = false
 
     let pages: [OnboardingPage] = [
         OnboardingPage(
             systemImage: "map.fill",
             title: "Welcome to DailyAdventure!",
             description: "Turn your daily life into an epic adventure. Every day is a new quest waiting to be conquered!",
-            color: Theme.titleDenim
+            color: Theme.accent
         ),
         OnboardingPage(
             systemImage: "star.fill",
             title: "Your Daily Adventure",
             description: "Set your main quest for the day. What's the one big thing you want to accomplish today?",
-            color: Theme.workBlue
+            color: Theme.workColor
         ),
         OnboardingPage(
             systemImage: "bolt.fill",
             title: "Side Quests",
             description: "Balance your adventure with side quests in Work, Health and Relationship. Small steps lead to great victories!",
-            color: Theme.healthGreen
+            color: Theme.healthColor
         ),
         OnboardingPage(
             systemImage: "chart.pie.fill",
             title: "Check your Progress",
             description: "Watch your adventure unfold as you complete quests. Check your progress and celebrate your victories!",
-            color: Theme.healthRose
+            color: Theme.relationshipColor
         ),
         OnboardingPage(
             systemImage: "book.fill",
             title: "Adventure Log",
             description: "Look back at your past adventures, review your days and give feedback on how each one went. Your journey tells a story!",
-            color: Theme.titleDenim
+            color: Theme.accent
         ),
         OnboardingPage(
             systemImage: "bell.fill",
             title: "Stay on Track",
             description: "Get a morning reminder to plan your adventure and an evening one to review your day. You can adjust the schedule anytime in Settings.",
-            color: Theme.workBlue
+            color: Theme.workColor
         )
     ]
 
@@ -91,60 +91,34 @@ struct OnboardingView: View {
                 HStack(spacing: Theme.Spacing.small) {
                     ForEach(0..<steps.count, id: \.self) { index in
                         Capsule()
-                            .fill(currentPage == index ? Theme.titleDenim : Theme.titleDenim.opacity(0.3))
+                            .fill(currentPage == index ? Theme.accent : Theme.accent.opacity(0.25))
                             .frame(width: currentPage == index ? 24 : 8, height: 8)
                             .animation(.spring(response: 0.4, dampingFraction: 0.7), value: currentPage)
                     }
                 }
-                
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text("Page \(currentPage + 1) of \(steps.count)"))
+
                 Spacer()
-                
+
                 // MARK: - Buttons
                 VStack(spacing: Theme.Spacing.medium) {
                     if currentPage < steps.count - 1 {
-                        Button(action: goToNextPage) {
-                            Text(currentPage == steps.count - 2 ? "Start your Adventure!" : "Next")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(Theme.Spacing.medium)
-                                .background(Theme.titleDenim)
-                                .clipShape(Capsule())
-                                .glassEffectCapsuleIfAvailable()
-                        }
+                        Button(currentPage == steps.count - 2 ? "Start your Adventure!" : "Next", action: goToNextPage)
+                            .buttonStyle(.primary)
 
-                        Button(action: finish) {
-                            Text("Skip")
-                                .font(.subheadline)
-                                .foregroundColor(Theme.titleDenim.opacity(0.7))
-                        }
+                        Button("Skip", action: finish)
+                            .buttonStyle(OnboardingSecondaryButtonStyle())
                     } else {
-                        Button(action: {
-                            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
-                                DispatchQueue.main.async {
-                                    finish()
-                                }
-                            }
-                        }) {
-                            Text("Enable reminders")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(Theme.Spacing.medium)
-                                .background(Theme.titleDenim)
-                                .clipShape(Capsule())
-                                .glassEffectCapsuleIfAvailable()
-                        }
+                        Button("Enable reminders", action: enableReminders)
+                            .buttonStyle(.primary)
 
-                        Button(action: finish) {
-                            Text("Skip for now")
-                                .font(.subheadline)
-                                .foregroundColor(Theme.titleDenim.opacity(0.7))
-                        }
+                        Button("Skip for now", action: finish)
+                            .buttonStyle(OnboardingSecondaryButtonStyle())
                     }
                 }
-                .padding(.horizontal, Theme.Spacing.large)
-                .padding(.bottom, Theme.Spacing.large)
+                .padding(.horizontal, 20)
+                .padding(.bottom, Theme.Spacing.medium)
             }
         }
     }
@@ -158,6 +132,19 @@ struct OnboardingView: View {
     private func saveName() {
         let name = UserProfile.sanitized(nameDraft)
         if !name.isEmpty { userName = name }
+    }
+
+    /// Pede permissão e, se concedida, liga os dois lembretes com os horários padrão.
+    private func enableReminders() {
+        Task {
+            let granted = await NotificationService.shared.requestPermission()
+            if granted {
+                morningReminderEnabled = true
+                eveningReminderEnabled = true
+                NotificationService.shared.syncScheduledNotificationsWithSettings()
+            }
+            finish()
+        }
     }
 
     private func finish() {
@@ -228,48 +215,58 @@ struct OnboardingPage {
 
 struct OnboardingPageView: View {
     let page: OnboardingPage
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isAnimating = false
 
     var body: some View {
         VStack(spacing: Theme.Spacing.large) {
-            // Ícone animado
             ZStack {
                 Circle()
-                    .fill(page.color.opacity(0.1))
-                    .frame(width: 140, height: 140)
-                    .scaleEffect(isAnimating ? 1.1 : 0.9)
+                    .fill(page.color.opacity(0.08))
+                    .frame(width: 170, height: 170)
+                    .scaleEffect(isAnimating ? 1.06 : 0.94)
 
                 Circle()
-                    .fill(page.color.opacity(0.05))
-                    .frame(width: 170, height: 170)
-                    .scaleEffect(isAnimating ? 1.15 : 0.85)
+                    .fill(page.color.opacity(0.14))
+                    .frame(width: 132, height: 132)
 
                 Image(systemName: page.systemImage)
-                    .font(.system(size: 56))
-                    .foregroundColor(page.color)
-                    .scaleEffect(isAnimating ? 1.05 : 0.95)
+                    .font(.system(size: 54, weight: .semibold))
+                    .foregroundStyle(page.color)
             }
-            .glassEffectCircleIfAvailable()
+            .accessibilityHidden(true)
 
-            // Texto
             VStack(spacing: Theme.Spacing.medium) {
                 Text(LocalizedStringKey(page.title))
-                    .font(.title2).fontWeight(.bold)
-                    .foregroundColor(Theme.titleDenim)
+                    .font(.screenTitleCompact)
+                    .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.center)
+                    .accessibilityAddTraits(.isHeader)
 
                 Text(LocalizedStringKey(page.description))
                     .font(.body)
-                    .foregroundColor(Theme.titleDenim.opacity(0.8))
+                    .foregroundStyle(Theme.inkSecondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, Theme.Spacing.large)
             }
         }
+        .padding(.horizontal, Theme.Spacing.large)
         .onAppear {
-            withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
                 isAnimating = true
             }
         }
+    }
+}
+
+/// Botão de texto secundário ("Pular").
+struct OnboardingSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.supporting.weight(.semibold))
+            .foregroundStyle(Theme.accent)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .opacity(configuration.isPressed ? 0.6 : 1)
     }
 }
 

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("isDarkMode") private var isDarkMode = false
+    @AppStorage(AppearancePreference.key) private var appearance: AppearancePreference = .system
     @AppStorage("isHighContrast") private var isHighContrast = false
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage("morningReminderEnabled") private var morningReminderEnabled = false
@@ -71,80 +71,62 @@ struct SettingsView: View {
         return DateFormatter.localizedString(from: date, dateStyle: .none, timeStyle: .short)
     }
 
+    private var versionString: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "–"
+        let build = info?["CFBundleVersion"] as? String ?? "–"
+        return "DailyAdventure \(version) (\(build))"
+    }
+
     var body: some View {
         ZStack {
             AnimatedBackgroundView()
 
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: Theme.Spacing.large) {
-                    // MARK: - Header
-                    VStack(spacing: Theme.Spacing.small) {
-                        HStack(spacing: Theme.Spacing.medium) {
-                            Text("⚙️")
-                                .font(.largeTitle)
-                                .accessibilityHidden(true)
-                                .padding(Theme.Spacing.small)
-                                .background(Theme.titleDenim.opacity(0.1))
-                                .clipShape(Circle())
-                                .glassEffectCircleIfAvailable()
-
-                            Text("Settings")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(Theme.titleDenim)
-                        }
-                    }
-                    .padding(.top, Theme.Spacing.large)
+                VStack(alignment: .leading, spacing: 28) {
+                    Text("Settings")
+                        .font(.screenTitle)
+                        .foregroundStyle(Theme.ink)
+                        .accessibilityAddTraits(.isHeader)
 
                     // MARK: - Profile
-                    VStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                        Label("Profile", systemImage: "person.fill")
-                            .font(.headline)
-                            .foregroundColor(Theme.titleDenim)
-
+                    SettingsSection("Profile") {
                         SettingsNameRow()
                     }
-                    .padding(Theme.Spacing.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                    .glassEffectIfAvailable()
-                    .padding(.horizontal, Theme.Spacing.medium)
 
                     // MARK: - Appearance
-                    VStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                        Label("Appearance", systemImage: "paintbrush.fill")
-                            .font(.headline)
-                            .foregroundColor(Theme.titleDenim)
+                    SettingsSection("Appearance") {
+                        VStack(spacing: 0) {
+                            SettingsRow(icon: "circle.lefthalf.filled", color: Theme.workColor, title: "Theme") {
+                                EmptyView()
+                            }
+                            .accessibilityHidden(true)
 
+                            Picker("Theme", selection: $appearance) {
+                                ForEach(AppearancePreference.allCases) { option in
+                                    Text(option.title).tag(option)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .padding(.leading, 64)
+                            .padding(.trailing, 16)
+                            .padding(.bottom, 14)
+                        }
+                        SettingsDivider()
                         SettingsToggleRow(
-                            icon: "moon.fill",
-                            color: Theme.workBlue,
-                            title: String(localized: "Dark Mode"),
-                            subtitle: String(localized: "Switch to dark theme"),
-                            isOn: $isDarkMode
-                        )
-
-                        SettingsToggleRow(
-                            icon: "circle.lefthalf.filled",
-                            color: Theme.titleDenim,
+                            icon: "eye.fill",
+                            color: Theme.accent,
                             title: String(localized: "High Contrast"),
                             subtitle: String(localized: "Increase color contrast for better readability"),
                             isOn: $isHighContrast
                         )
                     }
-                    .padding(Theme.Spacing.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                    .glassEffectIfAvailable()
-                    .padding(.horizontal, Theme.Spacing.medium)
 
                     // MARK: - Notifications
-                    VStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                        Label(String(localized: "settings.notifications.header"), systemImage: "bell.fill")
-                            .font(.headline)
-                            .foregroundColor(Theme.titleDenim)
-
+                    SettingsSection(LocalizedStringKey("settings.notifications.header")) {
                         SettingsToggleRow(
                             icon: "sunrise.fill",
-                            color: Theme.workBlue,
+                            color: Theme.neutralOrange,
                             title: String(localized: "settings.notifications.morning.title"),
                             subtitle: morningSubtitle,
                             isOn: $morningReminderEnabled
@@ -165,15 +147,18 @@ struct SettingsView: View {
                         }
 
                         if morningReminderEnabled {
+                            SettingsDivider()
                             reminderTimePickerRow(
                                 title: String(localized: "settings.notifications.morning_time"),
                                 binding: morningTimeBinding
                             )
                         }
 
+                        SettingsDivider()
+
                         SettingsToggleRow(
                             icon: "moon.stars.fill",
-                            color: Theme.titleDenim,
+                            color: Theme.workColor,
                             title: String(localized: "settings.notifications.evening.title"),
                             subtitle: eveningSubtitle,
                             isOn: $eveningReminderEnabled
@@ -194,131 +179,187 @@ struct SettingsView: View {
                         }
 
                         if eveningReminderEnabled {
+                            SettingsDivider()
                             reminderTimePickerRow(
                                 title: String(localized: "settings.notifications.evening_time"),
                                 binding: eveningTimeBinding
                             )
                         }
                     }
-                    .padding(Theme.Spacing.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                    .glassEffectIfAvailable()
-                    .padding(.horizontal, Theme.Spacing.medium)
 
                     // MARK: - About
-                    VStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                        Label("About", systemImage: "info.circle.fill")
-                            .font(.headline)
-                            .foregroundColor(Theme.titleDenim)
-
+                    SettingsSection("About") {
                         SettingsInfoRow(
                             icon: "star.fill",
-                            color: Theme.titleDenim,
+                            color: Theme.accent,
                             title: String(localized: "What is DailyAdventure?"),
                             subtitle: String(localized: "A gamified journaling app that turns your daily tasks into epic quests!")
                         )
-
+                        SettingsDivider()
                         SettingsInfoRow(
                             icon: "diamond.fill",
                             color: Theme.healthColor,
                             title: String(localized: "Side Quests"),
                             subtitle: String(localized: "Add tasks for Work, Health and Relationship to balance your adventure.")
                         )
-
+                        SettingsDivider()
                         SettingsInfoRow(
                             icon: "chart.pie.fill",
-                            color: Theme.workBlue,
+                            color: Theme.workColor,
                             title: String(localized: "Check your Progress"),
                             subtitle: String(localized: "Track your daily completion and see how your adventure unfolds.")
                         )
                     }
-                    .padding(Theme.Spacing.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                    .glassEffectIfAvailable()
-                    .padding(.horizontal, Theme.Spacing.medium)
 
                     // MARK: - Help
-                    VStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                        Label("Help", systemImage: "questionmark.circle.fill")
-                            .font(.headline)
-                            .foregroundColor(Theme.titleDenim)
-
-                        Button(action: {
+                    SettingsSection("Help") {
+                        Button {
                             hasSeenOnboarding = false
-                        }) {
-                            HStack(spacing: Theme.Spacing.medium) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Theme.titleDenim.opacity(0.3))
-                                        .frame(width: 44, height: 44)
-
-                                    Image(systemName: "arrow.counterclockwise")
-                                        .foregroundColor(Theme.titleDenim)
-                                        .font(.callout)
-                                }
-                                .glassEffectCircleIfAvailable()
-
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("View Onboarding Again")
-                                        .font(.subheadline)
-                                        .fontWeight(.medium)
-                                        .foregroundColor(Theme.titleDenim)
-
-                                    Text("See how DailyAdventure works")
-                                        .font(.caption)
-                                        .foregroundColor(Theme.titleDenim.opacity(0.7))
-                                }
-
-                                Spacer()
-
+                        } label: {
+                            SettingsRow(
+                                icon: "arrow.counterclockwise",
+                                color: Theme.accent,
+                                title: "View Onboarding Again",
+                                subtitle: "See how DailyAdventure works"
+                            ) {
                                 Image(systemName: "chevron.right")
-                                    .foregroundColor(Theme.titleDenim.opacity(0.5))
-                                    .font(.caption)
+                                    .font(.footnote.weight(.semibold))
+                                    .foregroundStyle(Theme.inkSecondary)
                             }
-                            .padding(Theme.Spacing.small)
-                            .background(Theme.titleDenim.opacity(0.05))
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
-                            .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
+                            .contentShape(Rectangle())
                         }
-                        .accessibilityLabel("View Onboarding Again")
+                        .buttonStyle(.plain)
                     }
-                    .padding(Theme.Spacing.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                    .glassEffectIfAvailable()
-                    .padding(.horizontal, Theme.Spacing.medium)
 
                     // MARK: - Version
-                    Text("DailyAdventure v1.0")
+                    Text(verbatim: versionString)
                         .font(.caption)
-                        .foregroundColor(Theme.titleDenim.opacity(0.5))
-
-                    Spacer()
-                        .frame(height: 100)
+                        .foregroundStyle(Theme.inkSecondary)
+                        .frame(maxWidth: .infinity)
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+                .padding(.bottom, 120)
             }
-            .frame(maxWidth: .infinity)
             .scrollEdgeEffectIfAvailable()
         }
-        .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 
     private func reminderTimePickerRow(title: String, binding: Binding<Date>) -> some View {
         HStack(spacing: Theme.Spacing.medium) {
             Text(title)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(Theme.titleDenim)
+                .font(.rowText)
+                .foregroundStyle(Theme.ink)
 
             Spacer(minLength: 8)
 
             DatePicker("", selection: binding, displayedComponents: .hourAndMinute)
                 .labelsHidden()
-                .tint(Theme.titleDenim)
+                .tint(Theme.accent)
         }
-        .padding(Theme.Spacing.small)
-        .background(Theme.titleDenim.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
-        .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
+        .padding(.leading, 64)
+        .padding(.trailing, 16)
+        .frame(minHeight: 52)
+    }
+}
+
+// MARK: - Estrutura
+
+/// Rótulo em caixa alta + card com as linhas da seção.
+struct SettingsSection<Content: View>: View {
+    let title: LocalizedStringKey
+    @ViewBuilder var content: Content
+
+    init(_ title: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(title)
+                .padding(.horizontal, 4)
+                .accessibilityAddTraits(.isHeader)
+
+            VStack(spacing: 0) {
+                content
+            }
+            .padding(.vertical, 4)
+            .cardSurface(cornerRadius: Theme.Radius.list)
+        }
+    }
+}
+
+struct SettingsDivider: View {
+    var body: some View {
+        Divider()
+            .overlay(Theme.separator)
+            .padding(.leading, 64)
+    }
+}
+
+/// Linha padrão: ícone em quadrado arredondado, título/subtítulo e um elemento à direita.
+struct SettingsRow<Trailing: View>: View {
+    let icon: String
+    let color: Color
+    let title: Text
+    let subtitle: Text?
+    @ViewBuilder var trailing: Trailing
+
+    init(icon: String, color: Color, title: LocalizedStringKey, subtitle: LocalizedStringKey? = nil,
+         @ViewBuilder trailing: () -> Trailing = { EmptyView() }) {
+        self.icon = icon
+        self.color = color
+        self.title = Text(title)
+        self.subtitle = subtitle.map { Text($0) }
+        self.trailing = trailing()
+    }
+
+    init(icon: String, color: Color, verbatimTitle: String, verbatimSubtitle: String? = nil,
+         @ViewBuilder trailing: () -> Trailing = { EmptyView() }) {
+        self.icon = icon
+        self.color = color
+        self.title = Text(verbatim: verbatimTitle)
+        self.subtitle = verbatimSubtitle.map { Text(verbatim: $0) }
+        self.trailing = trailing()
+    }
+
+    var body: some View {
+        HStack(spacing: 14) {
+            SettingsIcon(systemImage: icon, color: color)
+
+            VStack(alignment: .leading, spacing: 2) {
+                title
+                    .font(.rowText)
+                    .foregroundStyle(Theme.ink)
+                if let subtitle {
+                    subtitle
+                        .font(.footnote)
+                        .foregroundStyle(Theme.inkSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            trailing
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .frame(minHeight: 52)
+    }
+}
+
+struct SettingsIcon: View {
+    let systemImage: String
+    let color: Color
+
+    var body: some View {
+        Image(systemName: systemImage)
+            .font(.callout.weight(.semibold))
+            .foregroundStyle(color)
+            .frame(width: 34, height: 34)
+            .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: 9))
+            .accessibilityHidden(true)
     }
 }
 
@@ -329,23 +370,13 @@ struct SettingsNameRow: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        HStack(spacing: Theme.Spacing.medium) {
-            ZStack {
-                Circle()
-                    .fill(Theme.titleDenim.opacity(0.3))
-                    .frame(width: 44, height: 44)
-
-                Image(systemName: "person.fill")
-                    .foregroundColor(Theme.titleDenim)
-                    .font(.callout)
-            }
-            .glassEffectCircleIfAvailable()
-            .accessibilityHidden(true)
+        HStack(spacing: 14) {
+            SettingsIcon(systemImage: "person.fill", color: Theme.accent)
 
             VStack(alignment: .leading, spacing: 2) {
                 TextField("Your name", text: $draft)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundColor(Theme.titleDenim)
+                    .font(.rowText)
+                    .foregroundStyle(Theme.ink)
                     .textContentType(.givenName)
                     .textInputAutocapitalization(.words)
                     .autocorrectionDisabled()
@@ -354,15 +385,13 @@ struct SettingsNameRow: View {
                     .onSubmit(save)
 
                 Text("Used to greet you on the Today tab")
-                    .font(.caption)
-                    .foregroundColor(Theme.titleDenim.opacity(0.7))
+                    .font(.footnote)
+                    .foregroundStyle(Theme.inkSecondary)
             }
         }
-        .padding(Theme.Spacing.small)
-        .frame(minHeight: 60)
-        .background(Theme.titleDenim.opacity(0.05))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
-        .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .frame(minHeight: 52)
         .onAppear { draft = userName }
         .onChange(of: isFocused) { _, focused in
             if !focused { save() }
@@ -383,39 +412,12 @@ struct SettingsToggleRow: View {
     @Binding var isOn: Bool
 
     var body: some View {
-        HStack(spacing: Theme.Spacing.medium) {
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.3))
-                    .frame(width: 44, height: 44)
-
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.callout)
-            }
-            .glassEffectCircleIfAvailable()
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(Theme.titleDenim)
-
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundColor(Theme.titleDenim.opacity(0.7))
-            }
-
-            Spacer()
-
-            Toggle("", isOn: $isOn)
-                .tint(Theme.titleDenim)
+        SettingsRow(icon: icon, color: color, verbatimTitle: title, verbatimSubtitle: subtitle) {
+            Toggle(title, isOn: $isOn)
                 .labelsHidden()
+                .tint(Theme.accent)
         }
-        .padding(Theme.Spacing.small)
-        .background(color.opacity(0.05))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
-        .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -426,35 +428,8 @@ struct SettingsInfoRow: View {
     let subtitle: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: Theme.Spacing.medium) {
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.3))
-                    .frame(width: 44, height: 44)
-
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.callout)
-            }
-            .glassEffectCircleIfAvailable()
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(Theme.titleDenim)
-
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundColor(Theme.titleDenim.opacity(0.7))
-            }
-
-            Spacer()
-        }
-        .padding(Theme.Spacing.small)
-        .background(color.opacity(0.05))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
-        .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
+        SettingsRow(icon: icon, color: color, verbatimTitle: title, verbatimSubtitle: subtitle)
+            .accessibilityElement(children: .combine)
     }
 }
 
