@@ -15,6 +15,7 @@ struct DailyAdventureApp: App {
     @State private var viewModel: QuestViewModel
 
     init() {
+        AppearancePreference.migrateLegacyIfNeeded()
         if Self.isUITesting {
             UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
         }
@@ -28,7 +29,7 @@ struct DailyAdventureApp: App {
     @State private var notificationRouter = NotificationTapRouter()
     @State private var isLoading = !DailyAdventureApp.isUITesting
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
-    @AppStorage("isDarkMode") private var isDarkMode = false
+    @AppStorage(AppearancePreference.key) private var appearance: AppearancePreference = .system
     @Environment(\.scenePhase) private var scenePhase
     
     var body: some Scene {
@@ -47,7 +48,7 @@ struct DailyAdventureApp: App {
             }
             .animation(.easeInOut(duration: 0.5), value: isLoading)
             .animation(.easeInOut(duration: 0.5), value: hasSeenOnboarding)
-            .preferredColorScheme(isDarkMode ? .dark : .light)
+            .preferredColorScheme(appearance.colorScheme)
             .onChange(of: scenePhase) { oldPhase, newPhase in
                 if newPhase == .active {
                     viewModel.checkAndResetIfNeeded()
