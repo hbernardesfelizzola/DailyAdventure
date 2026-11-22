@@ -28,4 +28,17 @@ enum QuestCategory: String, CaseIterable, Codable {
         case .relationship: return Theme.relationshipColor
         }
     }
+
+    /// Variante da cor para texto — `color` não tem contraste suficiente em fonte pequena.
+    var labelColor: Color {
+        switch self {
+        case .work: return Color(light: "4652C8", dark: "A9B0F5")
+        case .health: return Color(light: "2E7D57", dark: "7DD3AA")
+        case .relationship: return Color(light: "B2405B", dark: "F0A0B2")
+        }
+    }
+
+    var localizedName: LocalizedStringKey {
+        LocalizedStringKey(rawValue)
+    }
 }
