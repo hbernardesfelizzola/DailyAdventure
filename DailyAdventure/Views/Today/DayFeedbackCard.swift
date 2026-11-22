@@ -18,9 +18,9 @@ struct DayFeedbackCard: View {
                 .accessibilityAddTraits(.isHeader)
 
             HStack(spacing: 8) {
-                option(.positive, title: "Great day!", icon: "hand.thumbsup.fill", tint: Theme.healthColor)
-                option(.neutral, title: "So-so", icon: "minus.circle.fill", tint: Theme.neutralOrange)
-                option(.negative, title: "Tough day", icon: "hand.thumbsdown.fill", tint: Theme.healthRose)
+                ForEach(DayFeedback.selectable, id: \.self) { value in
+                    option(value, title: value.title, icon: value.icon ?? "", tint: value.tint)
+                }
             }
         }
         .padding(20)

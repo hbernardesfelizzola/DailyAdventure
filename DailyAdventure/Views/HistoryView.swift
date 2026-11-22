@@ -4,24 +4,41 @@
 //
 //  Created by Henrique Bernardes on 25/04/26.
 //
-
+//  Registro: dias agrupados por semana, com filtros. Tocar num dia abre o detalhe.
+//
 
 import SwiftUI
 
 struct HistoryView: View {
     var viewModel: QuestViewModel
-    @State private var selectedAdventure: DailyAdventure? = nil
+    @State private var filter: AdventureLogFilter = .all
+    @State private var expandedWeeks: Set<Date> = []
+    @State private var selectedDayID: UUID?
 
-    var allDays: [DailyAdventure] {
-        let cal = Calendar.current
+    private var allDays: [DailyAdventure] {
+        let calendar = Calendar.current
         let today = viewModel.todayAdventure
-        var days = viewModel.history.filter { entry in
-            !cal.isDate(entry.date, inSameDayAs: today.date)
-        }
+        var days = viewModel.history.filter { !calendar.isDate($0.date, inSameDayAs: today.date) }
         if today.shouldArchiveToAdventureLog {
             days.insert(today, at: 0)
         }
         return days
+    }
+
+    private var weeks: [AdventureLogWeek] {
+        AdventureLog.weeks(from: allDays, filter: filter)
+    }
+
+    /// Sem filtro, só a semana mais recente começa aberta. Com filtro, todas abertas.
+    private func isExpanded(_ week: AdventureLogWeek) -> Bool {
+        filter != .all || week.id == weeks.first?.id || expandedWeeks.contains(week.id)
+    }
+
+    private var selectedDay: Binding<DailyAdventure?> {
+        Binding(
+            get: { allDays.first { $0.id == selectedDayID } },
+            set: { selectedDayID = $0?.id }
+        )
     }
 
     var body: some View {
@@ -29,354 +46,152 @@ struct HistoryView: View {
             AnimatedBackgroundView()
 
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: Theme.Spacing.large) {
-                    // MARK: - Header
-                    VStack(spacing: Theme.Spacing.small) {
-                        HStack(spacing: Theme.Spacing.medium) {
-                            Image(systemName: "book.fill")
-                                .font(.title2)
-                                .foregroundColor(Theme.titleDenim)
-                                .frame(width: 56, height: 56)
-                                .background(Theme.titleDenim.opacity(0.1))
-                                .clipShape(Circle())
-                                .glassEffectCircleIfAvailable()
+                VStack(alignment: .leading, spacing: 22) {
+                    header
 
-                            Text("Adventure Log")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(Theme.titleDenim)
-                        }
-
-                        HStack(spacing: 6) {
-                            Image(systemName: "shield.fill")
-                                .font(.footnote)
-                                .foregroundColor(Theme.titleDenim.opacity(0.7))
-                            Text("\(viewModel.totalDaysAdventured) days of adventure")
-                                .font(.footnote)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Theme.titleDenim)
-                        }
-                        .padding(.horizontal, Theme.Spacing.medium)
-                        .padding(.vertical, Theme.Spacing.small)
-                        .background(Theme.titleDenim.opacity(0.1))
-                        .clipShape(Capsule())
-                        .glassEffectCapsuleIfAvailable()
-                    }
-                    .padding(.top, Theme.Spacing.large)
-
-                    // MARK: - Lista de dias
                     if allDays.isEmpty {
-                        VStack(spacing: Theme.Spacing.medium) {
-                            Text("📜")
-                                .font(.system(size: 48))
-                                .accessibilityHidden(true)
-
-                            Text("No adventures yet!")
-                                .font(.headline)
-                                .foregroundColor(Theme.titleDenim)
-
-                            Text("Start your first adventure today!")
-                                .font(.subheadline)
-                                .foregroundColor(Theme.titleDenim.opacity(0.8))
-                                .multilineTextAlignment(.center)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(Theme.Spacing.large)
-                        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                        .glassEffectIfAvailable()
-                        .padding(.horizontal, Theme.Spacing.medium)
+                        emptyState(
+                            title: "No adventures yet!",
+                            message: "Your days will show up here once you add quests."
+                        )
                     } else {
-                        VStack(spacing: Theme.Spacing.small) {
-                            ForEach(allDays) { adventure in
-                                AdventureHistoryRow(
-                                    adventure: adventure,
-                                    isSelected: selectedAdventure?.id == adventure.id,
-                                    onTap: {
-                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                            if selectedAdventure?.id == adventure.id {
-                                                selectedAdventure = nil
-                                            } else {
-                                                selectedAdventure = adventure
-                                            }
+                        filterBar
+
+                        if weeks.isEmpty {
+                            emptyState(title: "No days here yet", message: "Try another filter.")
+                        } else {
+                            ForEach(weeks) { week in
+                                LogWeekSection(
+                                    week: week,
+                                    isExpanded: isExpanded(week),
+                                    showsSummary: filter == .all,
+                                    onToggle: {
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                                            _ = expandedWeeks.insert(week.id)
                                         }
                                     },
-                                    onFeedback: { feedback in
-                                        viewModel.updateFeedback(feedback, for: adventure)
-                                    }
+                                    onSelectDay: { selectedDayID = $0.id }
                                 )
                             }
                         }
-                        .padding(.horizontal, Theme.Spacing.medium)
                     }
-
-                    Spacer()
-                        .frame(height: 100)
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 24)
+                .padding(.bottom, 120)
+                .animation(.spring(response: 0.4, dampingFraction: 0.85), value: filter)
             }
-            .frame(maxWidth: .infinity)
             .scrollEdgeEffectIfAvailable()
         }
+        .sheet(item: selectedDay) { day in
+            DayDetailSheet(adventure: day) { feedback in
+                viewModel.updateFeedback(feedback, for: day)
+            }
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
+    }
+
+    // MARK: - Partes
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Adventure Log")
+                .font(.screenTitle)
+                .foregroundStyle(Theme.ink)
+                .accessibilityAddTraits(.isHeader)
+            Text("\(viewModel.totalDaysAdventured) days of adventure")
+                .font(.supporting)
+                .foregroundStyle(Theme.inkSecondary)
+        }
+    }
+
+    private var filterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(AdventureLogFilter.allCases) { option in
+                    LogFilterChip(filter: option, isSelected: filter == option) {
+                        filter = option
+                    }
+                }
+            }
+        }
+        .scrollClipDisabled()
+    }
+
+    private func emptyState(title: LocalizedStringKey, message: LocalizedStringKey) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: "book.closed")
+                .font(.title)
+                .foregroundStyle(Theme.accent)
+                .accessibilityHidden(true)
+            Text(title)
+                .font(.cardTitle)
+                .foregroundStyle(Theme.ink)
+            Text(message)
+                .font(.supporting)
+                .foregroundStyle(Theme.inkSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(28)
+        .cardSurface()
     }
 }
 
-// MARK: - AdventureHistoryRow
-struct AdventureHistoryRow: View {
-    let adventure: DailyAdventure
+private struct LogFilterChip: View {
+    let filter: AdventureLogFilter
     let isSelected: Bool
-    let onTap: () -> Void
-    let onFeedback: (DayFeedback) -> Void
+    let action: () -> Void
 
-    var dateLabel: String {
-        if Calendar.current.isDateInToday(adventure.date) {
-            return "Today"
-        } else if Calendar.current.isDateInYesterday(adventure.date) {
-            return "Yesterday"
-        } else {
-            let sameYear = Calendar.current.isDate(adventure.date, equalTo: Date(), toGranularity: .year)
-            if sameYear {
-                return adventure.date.formatted(.dateTime.weekday(.wide).day().month())
-            } else {
-                return adventure.date.formatted(.dateTime.weekday(.wide).day().month().year())
-            }
+    private var title: LocalizedStringKey {
+        switch filter {
+        case .all: "All"
+        case .complete: "Complete days"
+        case .greatDays: "Great days"
+        case .toughDays: "Tough days"
         }
     }
 
-    var completionColor: Color {
-        switch adventure.completionLevel {
-        case .complete: return Theme.goldComplete
-        case .partial:  return Theme.workBlue
-        case .empty:    return Theme.titleDenim.opacity(0.3)
+    private var icon: String? {
+        switch filter {
+        case .all: nil
+        case .complete: "star.fill"
+        case .greatDays: DayFeedback.positive.icon
+        case .toughDays: DayFeedback.negative.icon
+        }
+    }
+
+    private var iconTint: Color {
+        switch filter {
+        case .all: Theme.accent
+        case .complete: Theme.goldComplete
+        case .greatDays: DayFeedback.positive.tint
+        case .toughDays: DayFeedback.negative.tint
         }
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // MARK: - Row principal
-            Button(action: onTap) {
-                HStack(spacing: Theme.Spacing.medium) {
-                    // Indicador de completion
-                    ZStack {
-                        Circle()
-                            .fill(completionColor.opacity(0.2))
-                            .frame(width: 44, height: 44)
-
-                        switch adventure.completionLevel {
-                        case .complete:
-                            Image(systemName: "star.fill")
-                                .foregroundColor(completionColor)
-                                .font(.body)
-                        case .partial:
-                            Text("\(Int(adventure.completionPercentage * 100))%")
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .foregroundColor(completionColor)
-                        case .empty:
-                            Image(systemName: "minus")
-                                .foregroundColor(Theme.titleDenim.opacity(0.3))
-                                .font(.caption)
-                        }
-                    }
-                    .glassEffectCircleIfAvailable()
-
-                    // Info do dia
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(dateLabel)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Theme.titleDenim)
-
-                        if adventure.mainQuest.isEmpty {
-                            Text("No main quest set")
-                                .font(.caption)
-                                .foregroundColor(Theme.titleDenim.opacity(0.5))
-                                .italic()
-                        } else {
-                            Text(adventure.mainQuest)
-                                .font(.caption)
-                                .foregroundColor(Theme.titleDenim.opacity(0.8))
-                                .lineLimit(1)
-                        }
-                    }
-
-                    Spacer()
-
-                    // Feedback badge
-                    if adventure.feedback != .none {
-                        Image(systemName: adventure.feedback == .positive ? "hand.thumbsup.fill" : adventure.feedback == .negative ? "hand.thumbsdown.fill" : "minus.circle.fill")
-                            .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : adventure.feedback == .negative ? Theme.healthRose : Theme.neutralOrange)
-                            .font(.callout)
-                    }
-
-                    Image(systemName: isSelected ? "chevron.up" : "chevron.down")
-                        .foregroundColor(Theme.titleDenim.opacity(0.5))
-                        .font(.caption)
+        Button(action: action) {
+            HStack(spacing: 6) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(isSelected ? Theme.onAccent : iconTint)
                 }
-                .padding(Theme.Spacing.medium)
+                Text(title)
+                    .font(.supporting.weight(isSelected ? .semibold : .medium))
+                    .foregroundStyle(isSelected ? Theme.onAccent : Theme.ink)
             }
-
-            // MARK: - Conteúdo expandido
-            if isSelected {
-                VStack(spacing: Theme.Spacing.medium) {
-                    Divider()
-                        .padding(.horizontal, Theme.Spacing.medium)
-
-                    // Quests do dia
-                    if adventure.hasAnyQuest {
-                        VStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                            // Main Quest
-                            if !adventure.mainQuest.isEmpty {
-                                let mainCompleted = adventure.completedQuests.contains(where: { $0.isMainQuest })
-                                HStack(spacing: Theme.Spacing.small) {
-                                    Image(systemName: "star.fill")
-                                        .foregroundColor(Theme.titleDenim)
-                                        .font(.caption2)
-                                        .frame(width: 20)
-
-                                    Text(adventure.mainQuest)
-                                        .font(.footnote)
-                                        .fontWeight(.medium)
-                                        .foregroundColor(Theme.titleDenim)
-
-                                    Spacer()
-
-                                    Image(systemName: mainCompleted ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                        .foregroundColor(mainCompleted ? Theme.healthColor : Theme.titleDenim.opacity(0.3))
-                                        .font(.caption)
-                                }
-                            }
-
-                            // Side Quests (sorted: work → health → relationship)
-                            let sortedSideQuests = adventure.sideQuests.sorted { a, b in
-                                func order(_ cat: QuestCategory?) -> Int {
-                                    switch cat {
-                                    case .work: return 0
-                                    case .health: return 1
-                                    case .relationship: return 2
-                                    case nil: return 3
-                                    }
-                                }
-                                return order(a.category) < order(b.category)
-                            }
-                            ForEach(sortedSideQuests) { quest in
-                                let completed = adventure.completedQuests.contains(where: { $0.id == quest.id })
-                                HStack(spacing: Theme.Spacing.small) {
-                                    Image(systemName: quest.category?.icon ?? "diamond.fill")
-                                        .foregroundColor(quest.category?.color ?? Theme.titleDenim)
-                                        .font(.caption2)
-                                        .frame(width: 20)
-
-                                    Text(quest.title)
-                                        .font(.footnote)
-                                        .foregroundColor(Theme.titleDenim.opacity(0.8))
-
-                                    Spacer()
-
-                                    Image(systemName: completed ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                        .foregroundColor(completed ? Theme.healthColor : Theme.titleDenim.opacity(0.3))
-                                        .font(.caption)
-                                }
-                            }
-                        }
-                        .padding(.horizontal, Theme.Spacing.medium)
-                    } else {
-                        Text("No quests recorded for this day")
-                            .font(.footnote)
-                            .foregroundColor(Theme.titleDenim.opacity(0.5))
-                            .italic()
-                            .padding(.horizontal, Theme.Spacing.medium)
-                    }
-
-                    Divider()
-                        .padding(.horizontal, Theme.Spacing.medium)
-
-                    // MARK: - Feedback
-                    VStack(spacing: Theme.Spacing.small) {
-                        Text("How was this day?")
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Theme.titleDenim.opacity(0.8))
-
-                        HStack(spacing: Theme.Spacing.medium) {
-                            // Thumbs Up
-                            Button(action: {
-                                withAnimation {
-                                    onFeedback(adventure.feedback == .positive ? .none : .positive)
-                                }
-                            }) {
-                                VStack(spacing: 4) {
-                                    Image(systemName: "hand.thumbsup.fill")
-                                        .font(.title2)
-                                        .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : Theme.titleDenim.opacity(0.35))
-                                        .scaleEffect(adventure.feedback == .positive ? 1.2 : 1.0)
-
-                                    Text("Great day!")
-                                        .font(.caption2)
-                                        .foregroundColor(adventure.feedback == .positive ? Theme.healthColor : Theme.titleDenim.opacity(0.5))
-                                }
-                                .padding(Theme.Spacing.medium)
-                                .background(adventure.feedback == .positive ? Theme.healthColor.opacity(0.15) : Color.clear)
-                                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
-                                .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
-                            }
-                            .accessibilityLabel("Great day")
-
-                            // Neutral
-                            Button(action: {
-                                withAnimation {
-                                    onFeedback(adventure.feedback == .neutral ? .none : .neutral)
-                                }
-                            }) {
-                                VStack(spacing: 4) {
-                                    Image(systemName: "minus.circle.fill")
-                                        .font(.title2)
-                                        .foregroundColor(adventure.feedback == .neutral ? Theme.neutralOrange : Theme.titleDenim.opacity(0.35))
-                                        .scaleEffect(adventure.feedback == .neutral ? 1.2 : 1.0)
-
-                                    Text("So-so")
-                                        .font(.caption2)
-                                        .foregroundColor(adventure.feedback == .neutral ? Theme.neutralOrange : Theme.titleDenim.opacity(0.5))
-                                }
-                                .padding(Theme.Spacing.medium)
-                                .background(adventure.feedback == .neutral ? Theme.neutralOrange.opacity(0.15) : Color.clear)
-                                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
-                                .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
-                            }
-                            .accessibilityLabel("So-so")
-
-                            // Thumbs Down
-                            Button(action: {
-                                withAnimation {
-                                    onFeedback(adventure.feedback == .negative ? .none : .negative)
-                                }
-                            }) {
-                                VStack(spacing: 4) {
-                                    Image(systemName: "hand.thumbsdown.fill")
-                                        .font(.title2)
-                                        .foregroundColor(adventure.feedback == .negative ? Theme.healthRose : Theme.titleDenim.opacity(0.35))
-                                        .scaleEffect(adventure.feedback == .negative ? 1.2 : 1.0)
-
-                                    Text("Tough day")
-                                        .font(.caption2)
-                                        .foregroundColor(adventure.feedback == .negative ? Theme.healthRose : Theme.titleDenim.opacity(0.5))
-                                }
-                                .padding(Theme.Spacing.medium)
-                                .background(adventure.feedback == .negative ? Theme.healthRose.opacity(0.15) : Color.clear)
-                                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
-                                .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
-                            }
-                            .accessibilityLabel("Tough day")
-                        }
-                    }
-                    .padding(.bottom, Theme.Spacing.medium)
-                }
-                .transition(.opacity.combined(with: .move(edge: .top)))
-            }
+            .padding(.horizontal, 14)
+            .frame(minHeight: 36)
+            .background(isSelected ? Theme.accent : Theme.cardBackground, in: Capsule())
+            .contentShape(Capsule())
         }
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-        .glassEffectIfAvailable()
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
-
 
 #Preview {
     HistoryView(viewModel: QuestViewModel.preview)

@@ -17,7 +17,15 @@ struct StreakCalculator {
         var excellence = 0
         var expectedDate = referenceNow
 
-        for day in [today] + history {
+        // Um dia de hoje ainda sem conclusões não zera a sequência: ela segue valendo até ontem.
+        // (O app não deve pressionar o usuário a concluir algo logo cedo.)
+        var days = [today] + history
+        if today.completionLevel == .empty, calendar.isDate(today.date, inSameDayAs: referenceNow) {
+            days.removeFirst()
+            expectedDate = calendar.date(byAdding: .day, value: -1, to: referenceNow)!
+        }
+
+        for day in days {
             guard calendar.isDate(day.date, inSameDayAs: expectedDate) else { break }
             guard day.completionLevel != .empty else { break }
             streak += 1

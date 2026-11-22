@@ -150,53 +150,34 @@ class QuestViewModel {
         return historyCount + todayCount
     }
 
-    /// Últimos 7 dias (do mais antigo para o mais recente), com nível de conclusão e categoria dominante.
-    var last7Days: [(date: Date, level: DayCompletionLevel, dominantCategory: QuestCategory?)] {
+    /// Todos os dias registrados: hoje (se tiver algo) + histórico, sem duplicar o dia atual.
+    private var allLoggedDays: [DailyAdventure] {
         let cal = Calendar.current
-        let today = Date()
-        return (0..<7).map { daysAgo -> (Date, DayCompletionLevel, QuestCategory?) in
-            let date = cal.date(byAdding: .day, value: -daysAgo, to: today)!
-            let adventure: DailyAdventure?
-            if cal.isDate(todayAdventure.date, inSameDayAs: date) {
-                adventure = todayAdventure
-            } else {
-                adventure = history.first(where: { cal.isDate($0.date, inSameDayAs: date) })
-            }
-            let level = adventure?.completionLevel ?? .empty
-            let dominant = level == .partial ? adventure.flatMap(dominantCompletedCategory) : nil
-            return (date, level, dominant)
-        }.reversed()
+        let past = history.filter { !cal.isDate($0.date, inSameDayAs: todayAdventure.date) }
+        return todayAdventure.hasAnyQuest ? [todayAdventure] + past : past
     }
 
-    private func dominantCompletedCategory(in adventure: DailyAdventure) -> QuestCategory? {
-        var counts: [QuestCategory: Int] = [:]
-        for quest in adventure.sideQuests where quest.isCompleted {
-            guard let cat = quest.category else { continue }
-            counts[cat, default: 0] += 1
-        }
-        return counts.max(by: { $0.value < $1.value })?.key
+    /// Total de quests concluídas (aventura do dia + secundárias) em todos os dias.
+    var totalQuestsCompleted: Int {
+        allLoggedDays.reduce(0) { $0 + $1.completedQuests.count }
     }
 
-    /// Taxa de adição e conclusão de quests por categoria, considerando todo o histórico + hoje.
-    var categoryStats: [CategoryStat] {
-        var counts: [QuestCategory: (added: Int, completed: Int)] = [:]
-        for cat in QuestCategory.allCases { counts[cat] = (0, 0) }
+    /// Fração dos dias com aventura do dia definida em que ela foi concluída. `nil` se nunca houve uma.
+    var dailyAdventureCompletionRate: Double? {
+        let withMainQuest = allLoggedDays.filter { !$0.mainQuest.isEmpty }
+        guard !withMainQuest.isEmpty else { return nil }
+        return Double(withMainQuest.filter(\.isMainQuestCompleted).count) / Double(withMainQuest.count)
+    }
 
-        let allDays = history + [todayAdventure]
-        for day in allDays {
-            for quest in day.sideQuests {
-                guard let cat = quest.category else { continue }
-                counts[cat]?.added += 1
-                if quest.isCompleted {
-                    counts[cat]?.completed += 1
-                }
-            }
-        }
+    /// Nível de conclusão de um dia qualquer (`nil` = nada registrado nesse dia).
+    func completionLevel(on date: Date) -> DayCompletionLevel? {
+        let cal = Calendar.current
+        return allLoggedDays.first { cal.isDate($0.date, inSameDayAs: date) }?.completionLevel
+    }
 
-        return QuestCategory.allCases.map { cat in
-            let c = counts[cat]!
-            return CategoryStat(category: cat, totalAdded: c.added, totalCompleted: c.completed)
-        }
+    /// Data do dia registrado mais antigo, para limitar a navegação do calendário.
+    var firstLoggedDate: Date? {
+        allLoggedDays.map(\.date).min()
     }
 
     private var streakInfo: (streak: Int, excellence: Int) {
