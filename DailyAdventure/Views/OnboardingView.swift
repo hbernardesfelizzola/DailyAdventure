@@ -13,6 +13,8 @@ struct OnboardingView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var currentPage = 0
     @State private var isAnimating = false
+    @AppStorage(UserProfile.nameKey) private var userName = ""
+    @State private var nameDraft = ""
 
     let pages: [OnboardingPage] = [
         OnboardingPage(
@@ -53,7 +55,13 @@ struct OnboardingView: View {
         )
     ]
 
-    
+    /// Páginas informativas com o passo do nome logo depois das boas-vindas.
+    private var steps: [OnboardingStep] {
+        var steps = pages.map(OnboardingStep.info)
+        steps.insert(.name, at: 1)
+        return steps
+    }
+
     var body: some View {
         ZStack {
             AnimatedBackgroundView()
@@ -63,17 +71,25 @@ struct OnboardingView: View {
                 
                 // MARK: - Page Content
                 TabView(selection: $currentPage) {
-                    ForEach(0..<pages.count, id: \.self) { index in
-                        OnboardingPageView(page: pages[index])
-                            .tag(index)
+                    ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
+                        Group {
+                            switch step {
+                            case .info(let page):
+                                OnboardingPageView(page: page)
+                            case .name:
+                                OnboardingNamePageView(name: $nameDraft, onSubmit: goToNextPage)
+                            }
+                        }
+                        .tag(index)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .frame(height: 400)
+                .onChange(of: currentPage) { _, _ in saveName() }
                 
                 // MARK: - Page Indicators
                 HStack(spacing: Theme.Spacing.small) {
-                    ForEach(0..<pages.count, id: \.self) { index in
+                    ForEach(0..<steps.count, id: \.self) { index in
                         Capsule()
                             .fill(currentPage == index ? Theme.titleDenim : Theme.titleDenim.opacity(0.3))
                             .frame(width: currentPage == index ? 24 : 8, height: 8)
@@ -85,13 +101,9 @@ struct OnboardingView: View {
                 
                 // MARK: - Buttons
                 VStack(spacing: Theme.Spacing.medium) {
-                    if currentPage < pages.count - 1 {
-                        Button(action: {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                currentPage += 1
-                            }
-                        }) {
-                            Text(currentPage == pages.count - 2 ? "Start your Adventure!" : "Next")
+                    if currentPage < steps.count - 1 {
+                        Button(action: goToNextPage) {
+                            Text(currentPage == steps.count - 2 ? "Start your Adventure!" : "Next")
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -101,9 +113,7 @@ struct OnboardingView: View {
                                 .glassEffectCapsuleIfAvailable()
                         }
 
-                        Button(action: {
-                            hasSeenOnboarding = true
-                        }) {
+                        Button(action: finish) {
                             Text("Skip")
                                 .font(.subheadline)
                                 .foregroundColor(Theme.titleDenim.opacity(0.7))
@@ -112,7 +122,7 @@ struct OnboardingView: View {
                         Button(action: {
                             UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
                                 DispatchQueue.main.async {
-                                    hasSeenOnboarding = true
+                                    finish()
                                 }
                             }
                         }) {
@@ -126,9 +136,7 @@ struct OnboardingView: View {
                                 .glassEffectCapsuleIfAvailable()
                         }
 
-                        Button(action: {
-                            hasSeenOnboarding = true
-                        }) {
+                        Button(action: finish) {
                             Text("Skip for now")
                                 .font(.subheadline)
                                 .foregroundColor(Theme.titleDenim.opacity(0.7))
@@ -139,6 +147,75 @@ struct OnboardingView: View {
                 .padding(.bottom, Theme.Spacing.large)
             }
         }
+    }
+
+    private func goToNextPage() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            currentPage = min(currentPage + 1, steps.count - 1)
+        }
+    }
+
+    private func saveName() {
+        let name = UserProfile.sanitized(nameDraft)
+        if !name.isEmpty { userName = name }
+    }
+
+    private func finish() {
+        saveName()
+        hasSeenOnboarding = true
+    }
+}
+
+enum OnboardingStep {
+    case info(OnboardingPage)
+    case name
+}
+
+/// Passo opcional para o usuário dizer como quer ser chamado (usado na saudação da Today).
+struct OnboardingNamePageView: View {
+    @Binding var name: String
+    let onSubmit: () -> Void
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        VStack(spacing: Theme.Spacing.large) {
+            Image(systemName: "person.crop.circle.fill")
+                .font(.system(size: 72))
+                .foregroundStyle(Theme.accent)
+                .accessibilityHidden(true)
+
+            VStack(spacing: Theme.Spacing.medium) {
+                Text("What should we call you?")
+                    .font(.screenTitleCompact)
+                    .foregroundStyle(Theme.ink)
+                    .multilineTextAlignment(.center)
+
+                Text("We'll use your name to greet you every day. You can change it anytime in Settings.")
+                    .font(.body)
+                    .foregroundStyle(Theme.inkSecondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            TextField("Your name", text: $name)
+                .font(.title3)
+                .foregroundStyle(Theme.ink)
+                .multilineTextAlignment(.center)
+                .textContentType(.givenName)
+                .textInputAutocapitalization(.words)
+                .autocorrectionDisabled()
+                .submitLabel(.next)
+                .focused($isFocused)
+                .onSubmit(onSubmit)
+                .padding(.horizontal, 16)
+                .frame(minHeight: 56)
+                .cardSurface(cornerRadius: Theme.Radius.control)
+                .onChange(of: name) { _, newValue in
+                    if newValue.count > UserProfile.maxNameLength {
+                        name = String(newValue.prefix(UserProfile.maxNameLength))
+                    }
+                }
+        }
+        .padding(.horizontal, Theme.Spacing.large)
     }
 }
 

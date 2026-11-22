@@ -10,7 +10,6 @@ import SwiftUI
 /// Tela Today: header que acompanha o dia, aventura do dia em destaque e missões secundárias.
 struct ContentView: View {
     var viewModel: QuestViewModel
-    var weatherProvider: WeatherProvider
     @State private var showVictory = false
     @State private var showAddQuest = false
     @State private var showCompletedQuests = false
@@ -30,8 +29,7 @@ struct ContentView: View {
                         completedCount: adventure.completedQuests.count,
                         totalCount: adventure.totalQuests,
                         progress: adventure.completionPercentage,
-                        daysAdventured: viewModel.totalDaysAdventured,
-                        weatherProvider: weatherProvider
+                        daysAdventured: viewModel.totalDaysAdventured
                     )
 
                     MainQuestCard(viewModel: viewModel, onCompleted: questCompleted)
@@ -86,17 +84,17 @@ struct ContentView: View {
                 } label: {
                     HStack {
                         Text("\(sideQuests.count) side quests completed")
-                            .font(.body)
+                            .font(.rowText)
                             .foregroundStyle(Theme.ink)
                         Spacer()
                         Image(systemName: "chevron.down")
-                            .font(.subheadline.weight(.semibold))
+                            .font(.supporting.weight(.semibold))
                             .foregroundStyle(Theme.inkSecondary)
                             .rotationEffect(.degrees(showCompletedQuests ? 180 : 0))
                     }
                     .padding(.horizontal, 18)
                     .frame(minHeight: 52)
-                    .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 18))
+                    .cardSurface(cornerRadius: Theme.Radius.list)
                 }
                 .buttonStyle(.plain)
                 .accessibilityValue(showCompletedQuests ? Text("Expanded") : Text("Collapsed"))
@@ -116,7 +114,7 @@ struct ContentView: View {
             showAddQuest = true
         } label: {
             Label("Add another quest", systemImage: "plus")
-                .font(.subheadline.weight(.semibold))
+                .font(.supporting.weight(.semibold))
                 .foregroundStyle(Theme.accent)
                 .frame(maxWidth: .infinity, minHeight: 44)
         }
@@ -139,11 +137,11 @@ struct ContentView: View {
 }
 
 #Preview("Light Mode") {
-    ContentView(viewModel: QuestViewModel.preview, weatherProvider: WeatherProvider())
+    ContentView(viewModel: QuestViewModel.preview)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark Mode") {
-    ContentView(viewModel: QuestViewModel.preview, weatherProvider: WeatherProvider())
+    ContentView(viewModel: QuestViewModel.preview)
         .preferredColorScheme(.dark)
 }

@@ -13,7 +13,7 @@ struct DayFeedbackCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("How was this day?")
-                .font(.system(.title3, design: .serif, weight: .bold))
+                .font(.cardTitle)
                 .foregroundStyle(Theme.ink)
                 .accessibilityAddTraits(.isHeader)
 
@@ -24,7 +24,7 @@ struct DayFeedbackCard: View {
             }
         }
         .padding(20)
-        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 24))
+        .cardSurface()
     }
 
     private func option(_ value: DayFeedback, title: LocalizedStringKey, icon: String, tint: Color) -> some View {
@@ -40,7 +40,7 @@ struct DayFeedbackCard: View {
                     .foregroundStyle(isSelected ? tint : Theme.inkSecondary)
                     .scaleEffect(isSelected ? 1.15 : 1)
                 Text(title)
-                    .font(.footnote.weight(.semibold))
+                    .font(.label)
                     .foregroundStyle(isSelected ? Theme.ink : Theme.inkSecondary)
                     .multilineTextAlignment(.center)
             }

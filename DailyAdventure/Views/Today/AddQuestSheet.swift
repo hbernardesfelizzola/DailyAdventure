@@ -25,21 +25,21 @@ struct AddQuestSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     TextField("Quest name", text: $title)
-                        .font(.title3)
+                        .font(.questInput)
                         .foregroundStyle(Theme.ink)
                         .focused($isFocused)
                         .submitLabel(.done)
                         .onSubmit(add)
                         .padding(.horizontal, 16)
                         .frame(minHeight: 56)
-                        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16))
+                        .cardSurface(cornerRadius: Theme.Radius.control)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 16)
+                            RoundedRectangle(cornerRadius: Theme.Radius.control)
                                 .strokeBorder(category.color, lineWidth: isFocused ? 2 : 1)
                         )
 
                     VStack(alignment: .leading, spacing: 10) {
-                        sectionTitle("Category")
+                        SectionLabel("Category")
                         FlowLayout(spacing: 8) {
                             ForEach(QuestCategory.allCases, id: \.self) { option in
                                 CategoryChip(category: option, isSelected: option == category) {
@@ -51,7 +51,7 @@ struct AddQuestSheet: View {
 
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            sectionTitle("Suggestions")
+                            SectionLabel("Suggestions")
                             Spacer()
                             ShuffleButton(action: refreshSuggestions)
                         }
@@ -69,14 +69,9 @@ struct AddQuestSheet: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .safeAreaInset(edge: .bottom) {
-                Button(action: add) {
-                    Text("Add quest")
-                        .font(.headline)
-                        .foregroundStyle(Theme.onAccent)
-                        .frame(maxWidth: .infinity, minHeight: 56)
-                        .background(Theme.accent.opacity(trimmedTitle.isEmpty ? 0.4 : 1), in: RoundedRectangle(cornerRadius: 18))
-                }
-                .disabled(trimmedTitle.isEmpty)
+                Button("Add quest", action: add)
+                    .buttonStyle(.primary)
+                    .disabled(trimmedTitle.isEmpty)
                 .padding(.horizontal, 20)
                 .padding(.bottom, 12)
             }
@@ -95,14 +90,6 @@ struct AddQuestSheet: View {
             isFocused = true
         }
         .onChange(of: category) { _, _ in refreshSuggestions() }
-    }
-
-    private func sectionTitle(_ key: LocalizedStringKey) -> some View {
-        Text(key)
-            .font(.footnote.weight(.semibold))
-            .textCase(.uppercase)
-            .tracking(0.8)
-            .foregroundStyle(Theme.inkSecondary)
     }
 
     private func refreshSuggestions() {

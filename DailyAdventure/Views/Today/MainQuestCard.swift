@@ -38,7 +38,7 @@ struct MainQuestCard: View {
             label(color: Theme.accent)
 
             TextField("Write your main quest…", text: $draft, axis: .vertical)
-                .font(.system(.title3, design: .serif))
+                .font(.questInput)
                 .foregroundStyle(Theme.ink)
                 .focused($isFocused)
                 .submitLabel(.done)
@@ -52,16 +52,15 @@ struct MainQuestCard: View {
                 .onSubmit(submit)
                 .padding(16)
                 .frame(minHeight: 56)
-                .background(Theme.surfaceSecondary, in: RoundedRectangle(cornerRadius: 14))
+                .background(Theme.surfaceSecondary, in: RoundedRectangle(cornerRadius: Theme.Radius.inset))
                 .accessibilityLabel("Main quest")
 
             Text("One thing that would make today worth it.")
-                .font(.subheadline)
+                .font(.supporting)
                 .foregroundStyle(Theme.inkSecondary)
         }
         .padding(20)
-        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 24))
-        .shadow(color: Theme.ink.opacity(0.06), radius: 12, y: 6)
+        .cardSurface(shadow: true)
         .transition(.opacity.combined(with: .scale(scale: 0.98)))
     }
 
@@ -73,7 +72,7 @@ struct MainQuestCard: View {
 
             HStack(alignment: .center, spacing: 14) {
                 Text(quest)
-                    .font(.system(.title2, design: .serif, weight: .semibold))
+                    .font(.questTitle)
                     .foregroundStyle(Theme.onAccent)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -88,7 +87,7 @@ struct MainQuestCard: View {
             }
         }
         .padding(20)
-        .background(Theme.accent, in: RoundedRectangle(cornerRadius: 24))
+        .background(Theme.accent, in: RoundedRectangle(cornerRadius: Theme.Radius.card))
         .shadow(color: Theme.accent.opacity(0.3), radius: 12, y: 6)
         .contextMenu { editMenu }
         .accessibilityAction(named: "Edit main quest", edit)
@@ -110,19 +109,19 @@ struct MainQuestCard: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Daily Adventure")
-                    .font(.caption.weight(.bold))
+                    .font(.tag)
                     .textCase(.uppercase)
                     .tracking(0.8)
                     .foregroundStyle(Theme.goldText)
                 Text(quest)
-                    .font(.system(.title3, design: .serif, weight: .semibold))
+                    .font(.questTitleSmall)
                     .foregroundStyle(Theme.ink)
             }
             Spacer(minLength: 0)
         }
         .padding(.vertical, 18)
         .padding(.horizontal, 20)
-        .background(Theme.goldSurface, in: RoundedRectangle(cornerRadius: 24))
+        .background(Theme.goldSurface, in: RoundedRectangle(cornerRadius: Theme.Radius.card))
         .contextMenu { editMenu }
         .accessibilityAction(named: "Edit main quest", edit)
         .accessibilityAction(named: "Remove main quest", remove)
@@ -133,7 +132,7 @@ struct MainQuestCard: View {
 
     private func label(color: Color) -> some View {
         Label("Daily Adventure", systemImage: Theme.Icons.mainQuest)
-            .font(.footnote.weight(.bold))
+            .font(.label)
             .textCase(.uppercase)
             .tracking(0.8)
             .foregroundStyle(color)
