@@ -102,19 +102,33 @@ import Testing
         #expect(streak == 2) // breaks at the missing day 2
     }
 
-    @Test func streakZeroWhenTodayEmptyEvenWithConsecutiveHistory() {
+    @Test func emptyTodayKeepsStreakFromYesterday() {
         let cal = gmtCalendar()
         let now = Date()
         let calc = StreakCalculator(calendar: cal)
         let today = emptyDay(daysAgo: 0, referenceNow: now, calendar: cal)
         let yesterday = completeDay(daysAgo: 1, referenceNow: now, calendar: cal)
-        let twoDaysAgo = completeDay(daysAgo: 2, referenceNow: now, calendar: cal)
+        let twoDaysAgo = partialDay(daysAgo: 2, referenceNow: now, calendar: cal)
 
-        let (streak, _) = calc.streakInfo(
+        let (streak, excellence) = calc.streakInfo(
             today: today,
             history: [yesterday, twoDaysAgo],
             referenceNow: now
         )
+
+        #expect(streak == 2)
+        #expect(excellence == 1)
+    }
+
+    @Test func streakZeroWhenTodayAndYesterdayAreEmpty() {
+        let cal = gmtCalendar()
+        let now = Date()
+        let calc = StreakCalculator(calendar: cal)
+        let today = emptyDay(daysAgo: 0, referenceNow: now, calendar: cal)
+        // ontem sem registro; anteontem completo não conta mais
+        let twoDaysAgo = completeDay(daysAgo: 2, referenceNow: now, calendar: cal)
+
+        let (streak, _) = calc.streakInfo(today: today, history: [twoDaysAgo], referenceNow: now)
 
         #expect(streak == 0)
     }

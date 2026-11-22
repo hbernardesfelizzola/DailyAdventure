@@ -2,9 +2,11 @@
 //  ProgressTabView.swift
 //  DailyAdventure
 //
+//  Progresso: sequência atual, calendário do mês e totais.
+//  Tudo aqui é retrospectivo — nada de metas, recordes ou cobranças (ver a sequência em StreakCalculator).
+//
 
 import SwiftUI
-import Charts
 
 struct ProgressTabView: View {
     var viewModel: QuestViewModel
@@ -14,352 +16,159 @@ struct ProgressTabView: View {
             AnimatedBackgroundView()
 
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: Theme.Spacing.large) {
+                VStack(alignment: .leading, spacing: 22) {
+                    Text("Progress")
+                        .font(.screenTitle)
+                        .foregroundStyle(Theme.ink)
+                        .accessibilityAddTraits(.isHeader)
 
-                    // MARK: - Header
-                    HStack(spacing: Theme.Spacing.medium) {
-                        Image(systemName: "chart.pie.fill")
-                            .font(.title2)
-                            .foregroundColor(Theme.titleDenim)
-                            .frame(width: 56, height: 56)
-                            .background(Theme.titleDenim.opacity(0.1))
-                            .clipShape(Circle())
-                            .glassEffectCircleIfAvailable()
+                    StreakHeroCard(
+                        streak: viewModel.currentStreak,
+                        excellence: viewModel.excellenceInStreak,
+                        totalDays: viewModel.totalDaysAdventured
+                    )
 
-                        Text("Your Progress")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundColor(Theme.titleDenim)
-                    }
-                    .padding(.top, Theme.Spacing.large)
+                    MonthCalendarCard(viewModel: viewModel)
 
-                    // MARK: - Today
-                    VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
-                        Label("Today", systemImage: "star.fill")
-                            .font(.headline)
-                            .foregroundColor(Theme.titleDenim)
-
-                        if viewModel.todayAdventure.hasAnyQuest {
-                            DrawingProgressView(
-                                progress: viewModel.todayAdventure.completionPercentage,
-                                completedQuests: viewModel.todayAdventure.completedQuests,
-                                totalQuests: viewModel.todayAdventure.totalQuests,
-                                allSideQuests: viewModel.todayAdventure.sideQuests
-                            )
-                        } else {
-                            HStack {
-                                Spacer()
-                                VStack(spacing: Theme.Spacing.small) {
-                                    Image(systemName: "star.fill")
-                                        .font(.title2)
-                                        .foregroundColor(Theme.titleDenim.opacity(0.3))
-                                    Text("No quests set for today yet")
-                                        .font(.subheadline)
-                                        .foregroundColor(Theme.titleDenim.opacity(0.7))
-                                }
-                                Spacer()
-                            }
-                            .padding(Theme.Spacing.medium)
-                        }
-                    }
-                    .padding(Theme.Spacing.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                    .glassEffectIfAvailable()
-                    .padding(.horizontal, Theme.Spacing.medium)
-
-                    // MARK: - Last 7 Days
-                    VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
-                        Label("Last 7 Days", systemImage: "calendar")
-                            .font(.headline)
-                            .foregroundColor(Theme.titleDenim)
-
-                        HStack(spacing: Theme.Spacing.small) {
-                            ForEach(viewModel.last7Days, id: \.date) { entry in
-                                DayCell(date: entry.date, level: entry.level, dominantCategory: entry.dominantCategory)
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-
-                        // Legenda
-                        HStack(spacing: Theme.Spacing.medium) {
-                            LegendItem(color: Theme.goldComplete, label: "Complete")
-                            LegendItem(color: Theme.workBlue, label: "Partial")
-                            LegendItem(color: Theme.titleDenim.opacity(0.2), label: "Empty")
-                        }
-                    }
-                    .padding(Theme.Spacing.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-                    .glassEffectIfAvailable()
-                    .padding(.horizontal, Theme.Spacing.medium)
-
-                    // MARK: - Category Insights
-                    if viewModel.categoryStats.contains(where: { $0.hasData }) {
-                        CategoryInsightsCard(stats: viewModel.categoryStats)
-                    }
-
-                    Spacer().frame(height: 100)
+                    totals
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 24)
+                .padding(.bottom, 120)
             }
-            .frame(maxWidth: .infinity)
             .scrollEdgeEffectIfAvailable()
         }
     }
-}
 
-// MARK: - DayCell
-
-private struct DayCell: View {
-    let date: Date
-    let level: DayCompletionLevel
-    let dominantCategory: QuestCategory?
-
-    private var dayLabel: String {
-        date.formatted(.dateTime.weekday(.narrow))
-    }
-
-    private var bgColor: Color {
-        switch level {
-        case .complete: return Theme.goldComplete
-        case .partial:  return dominantCategory?.color ?? Theme.workBlue
-        case .empty:    return Theme.titleDenim.opacity(0.15)
-        }
-    }
-
-    private var icon: String? {
-        switch level {
-        case .complete: return "star.fill"
-        case .partial:  return "circle.fill"
-        case .empty:    return nil
-        }
-    }
-
-    var body: some View {
-        VStack(spacing: 4) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(bgColor.opacity(level == .empty ? 1 : 0.25))
-                    .frame(height: 44)
-
-                if let icon {
-                    Image(systemName: icon)
-                        .foregroundColor(bgColor)
-                        .font(level == .complete ? .caption : .caption2)
+    private var totals: some View {
+        Grid(horizontalSpacing: 10, verticalSpacing: 10) {
+            GridRow {
+                StatTile(value: Text(viewModel.totalQuestsCompleted, format: .number), label: Text(viewModel.totalQuestsCompleted == 1 ? "quest completed" : "quests completed"))
+                if let rate = viewModel.dailyAdventureCompletionRate {
+                    StatTile(
+                        value: Text(rate, format: .percent.precision(.fractionLength(0))),
+                        label: Text("of daily adventures done")
+                    )
                 }
             }
-            .glassEffectIfAvailable(cornerRadius: 8)
-
-            Text(dayLabel)
-                .font(.caption2)
-                .fontWeight(.medium)
-                .foregroundColor(Theme.titleDenim.opacity(0.6))
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
-// MARK: - LegendItem
-
-private struct LegendItem: View {
-    let color: Color
-    let label: String
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-            Text(label)
-                .font(.caption2)
-                .foregroundColor(Theme.titleDenim.opacity(0.7))
-        }
-    }
-}
-
-// MARK: - MissingQuestRow (mantida para compatibilidade)
-
-struct MissingQuestRow: View {
-    let icon: String
-    let color: Color
-    let message: String
-
-    var body: some View {
-        HStack(spacing: Theme.Spacing.small) {
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.2))
-                    .frame(width: 44, height: 44)
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.caption)
+            // Com sequência ativa o card principal não mostra os dias de aventura: mostra aqui.
+            if viewModel.currentStreak > 0 {
+                GridRow {
+                    StatTile(
+                        value: Text(viewModel.totalDaysAdventured, format: .number),
+                        label: Text(viewModel.totalDaysAdventured == 1 ? "day of adventure" : "days of adventure")
+                    )
+                    .gridCellColumns(viewModel.dailyAdventureCompletionRate == nil ? 1 : 2)
+                }
             }
-            .glassEffectCircleIfAvailable()
-            Text(message)
-                .font(.footnote)
-                .foregroundColor(Theme.titleDenim.opacity(0.8))
-            Spacer()
         }
-        .padding(Theme.Spacing.small)
-        .background(color.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusSmall))
-        .glassEffectIfAvailable(cornerRadius: Theme.cornerRadiusSmall)
     }
 }
 
-// MARK: - CategoryInsightsCard
+// MARK: - Sequência
 
-private struct CategoryInsightsCard: View {
-    let stats: [CategoryStat]
+private struct StreakHeroCard: View {
+    let streak: Int
+    let excellence: Int
+    let totalDays: Int
 
-    private var activeStats: [CategoryStat] { stats.filter { $0.hasData } }
-
-    private var mostFocused: CategoryStat? {
-        activeStats.max(by: { $0.totalAdded < $1.totalAdded })
+    private var excellenceText: Text? {
+        guard excellence > 0 else { return nil }
+        if excellence == streak {
+            return streak == 1 ? Text("Every quest done.") : Text("Every quest done on all of them.")
+        }
+        return Text("Every quest done on \(excellence) of them.")
     }
 
-    private var neglectedCategories: [CategoryStat] {
-        let noData = stats.filter { !$0.hasData }
-        if !noData.isEmpty { return noData }
-        guard let minAdded = activeStats.map(\.totalAdded).min() else { return [] }
-        return activeStats.filter { $0.totalAdded == minAdded }
-    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if streak > 0 {
+                Label("Current streak", systemImage: "flame.fill")
+                    .font(.label)
+                    .textCase(.uppercase)
+                    .tracking(0.8)
+                    .foregroundStyle(Theme.onAccent.opacity(0.85))
+                    .labelStyle(GoldIconLabelStyle())
 
-    @ViewBuilder
-    private var insightSection: some View {
-        let neglected = neglectedCategories
-        if neglected.count == stats.count {
-            InsightChip(
-                systemImage: "checkmark.circle.fill",
-                color: Theme.healthColor,
-                text: String(localized: "You're keeping a great balance across all categories!")
-            )
-        } else if let focused = mostFocused, !neglected.isEmpty,
-                  focused.category != neglected[0].category,
-                  focused.totalAdded > (neglected.first?.totalAdded ?? 0) || neglected.contains(where: { !$0.hasData }) {
-            let focusedName = NSLocalizedString(focused.category.rawValue, comment: "")
-            InsightChip(
-                systemImage: focused.category.icon,
-                color: focused.category.color,
-                text: String(format: NSLocalizedString("insight.focus_format", comment: ""), focusedName)
-            )
-            if neglected.count == 1 {
-                let neglectedName = NSLocalizedString(neglected[0].category.rawValue, comment: "")
-                InsightChip(
-                    systemImage: "exclamationmark.circle.fill",
-                    color: neglected[0].category.color,
-                    text: String(format: NSLocalizedString("insight.neglect_format", comment: ""), neglectedName)
-                )
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    Text(streak, format: .number)
+                        .font(.system(size: 64, weight: .bold, design: .serif))
+                    Text(streak == 1 ? "day in a row" : "days in a row")
+                        .font(.questTitleSmall)
+                }
+                .foregroundStyle(Theme.onAccent)
+                .accessibilityElement(children: .combine)
+
+                if let excellenceText {
+                    excellenceText
+                        .font(.supporting)
+                        .foregroundStyle(Theme.onAccent.opacity(0.88))
+                }
+            } else if totalDays > 0 {
+                Label("Your journey", systemImage: "map.fill")
+                    .font(.label)
+                    .textCase(.uppercase)
+                    .tracking(0.8)
+                    .foregroundStyle(Theme.onAccent.opacity(0.85))
+                    .labelStyle(GoldIconLabelStyle())
+
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    Text(totalDays, format: .number)
+                        .font(.system(size: 64, weight: .bold, design: .serif))
+                    Text(totalDays == 1 ? "day of adventure" : "days of adventure")
+                        .font(.questTitleSmall)
+                }
+                .foregroundStyle(Theme.onAccent)
+                .accessibilityElement(children: .combine)
             } else {
-                let separator = NSLocalizedString(" and ", comment: "")
-                let names = neglected.map { NSLocalizedString($0.category.rawValue, comment: "") }.joined(separator: separator)
-                InsightChip(
-                    systemImage: "exclamationmark.circle.fill",
-                    color: Theme.titleDenim,
-                    text: String(format: NSLocalizedString("insight.neglect_format", comment: ""), names)
-                )
+                Label("Your journey", systemImage: "map.fill")
+                    .font(.label)
+                    .textCase(.uppercase)
+                    .tracking(0.8)
+                    .foregroundStyle(Theme.onAccent.opacity(0.85))
+                    .labelStyle(GoldIconLabelStyle())
+
+                Text("Your adventures will show up here.")
+                    .font(.cardTitle)
+                    .foregroundStyle(Theme.onAccent)
             }
         }
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.medium) {
-            VStack(alignment: .leading, spacing: 2) {
-                Label("Category Insights", systemImage: "chart.bar.fill")
-                    .font(.headline)
-                    .foregroundColor(Theme.titleDenim)
-                Text("From all your logged adventures")
-                    .font(.footnote)
-                    .foregroundColor(Theme.titleDenim.opacity(0.5))
-            }
-
-            VStack(spacing: Theme.Spacing.small) {
-                ForEach(stats, id: \.category.rawValue) { stat in
-                    CategoryStatRow(stat: stat)
-                }
-            }
-
-            Divider()
-                .background(Theme.titleDenim.opacity(0.2))
-
-            VStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                insightSection
-            }
-        }
-        .padding(Theme.Spacing.medium)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-        .glassEffectIfAvailable()
-        .padding(.horizontal, Theme.Spacing.medium)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(22)
+        .background(Theme.accent, in: RoundedRectangle(cornerRadius: Theme.Radius.card))
+        .shadow(color: Theme.accent.opacity(0.3), radius: 12, y: 6)
     }
 }
 
-// MARK: - CategoryStatRow
-
-private struct CategoryStatRow: View {
-    let stat: CategoryStat
-
-    var body: some View {
-        HStack(spacing: Theme.Spacing.small) {
-            ZStack {
-                Circle()
-                    .fill(stat.category.color.opacity(0.2))
-                    .frame(width: 44, height: 44)
-                Image(systemName: stat.category.icon)
-                    .foregroundColor(stat.category.color)
-                    .font(.caption)
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(stat.category.rawValue)
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .foregroundColor(Theme.titleDenim)
-                    Spacer()
-                    if stat.hasData {
-                        Text("\(stat.totalCompleted)/\(stat.totalAdded)")
-                            .font(.caption2)
-                            .foregroundColor(Theme.titleDenim.opacity(0.6))
-                    } else {
-                        Text("No quests yet")
-                            .font(.caption2)
-                            .foregroundColor(Theme.titleDenim.opacity(0.4))
-                    }
-                }
-
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Theme.titleDenim.opacity(0.1))
-                            .frame(height: 6)
-                        if stat.hasData {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(stat.category.color)
-                                .frame(width: geo.size.width * stat.completionRate, height: 6)
-                        }
-                    }
-                }
-                .frame(height: 6)
-            }
+/// Ícone dourado + título, para os rótulos do card azul.
+private struct GoldIconLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 8) {
+            configuration.icon.foregroundStyle(Theme.goldComplete)
+            configuration.title
         }
     }
 }
 
-// MARK: - InsightChip
+// MARK: - Totais
 
-private struct InsightChip: View {
-    let systemImage: String
-    let color: Color
-    let text: String
+private struct StatTile: View {
+    let value: Text
+    let label: Text
 
     var body: some View {
-        HStack(spacing: Theme.Spacing.small) {
-            Image(systemName: systemImage)
-                .foregroundColor(color)
-                .font(.footnote)
-            Text(text)
-                .font(.footnote)
-                .foregroundColor(Theme.titleDenim.opacity(0.8))
-            Spacer()
+        VStack(alignment: .leading, spacing: 4) {
+            value
+                .font(.system(.title, design: .serif, weight: .bold))
+                .foregroundStyle(Theme.ink)
+            label
+                .font(.supporting)
+                .foregroundStyle(Theme.inkSecondary)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(16)
+        .cardSurface(cornerRadius: Theme.Radius.list)
+        .accessibilityElement(children: .combine)
     }
 }
 
