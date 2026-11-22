@@ -62,6 +62,14 @@ struct ContentView: View {
             }
         }
         .sensoryFeedback(.success, trigger: completionTick)
+        #if DEBUG
+        .onAppear {
+            // Atalho de desenvolvimento: abre a Vitória sem precisar concluir quests de verdade.
+            if ProcessInfo.processInfo.arguments.contains("--preview-victory") {
+                showVictory = true
+            }
+        }
+        #endif
         .sheet(isPresented: $showAddQuest) {
             AddQuestSheet(viewModel: viewModel)
                 .presentationDetents([.large])
@@ -129,7 +137,7 @@ struct ContentView: View {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                 showVictory = true
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 withAnimation { showVictory = false }
             }
         }
